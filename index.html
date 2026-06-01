@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Marketplace</title>
+    <style>
+        /* UI Palette matching Admin Portal */
+        :root {
+            --bg-deep: #0B0E11;
+            --bg-card: #141A21;
+            --text-main: #FFFFFF;
+            --text-muted: #788694;
+            --neon-teal: #00E5FF;
+            --neon-orange: #FF9100;
+            --neon-purple: #B388FF;
+            --neon-green: #00E676;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            padding-bottom: 80px;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .cart-badge {
+            background-color: rgba(0, 229, 255, 0.1);
+            color: var(--neon-teal);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+        }
+
+        /* Catalog Grid Layout */
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .product-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .product-info {
+            padding-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .title-text { font-size: 14px; font-weight: bold; margin: 0; }
+        .stock-text { font-size: 11px; color: var(--text-muted); margin: 0; }
+        .price-text { color: var(--neon-orange); font-weight: bold; font-size: 16px; margin: 2px 0; }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .buy-btn {
+            flex: 1;
+            background-color: var(--neon-teal);
+            color: #000;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .like-btn {
+            background-color: #1B232D;
+            color: #FF3D00;
+            border: 1px solid #25313F;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Order Checkout Modal Overlay */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(11, 14, 17, 0.9);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border: 1px solid #25313F;
+        }
+
+        .modal-card h3 { color: var(--neon-teal); margin-bottom: 15px; }
+        .input-container { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; color: var(--text-muted); font-size: 12px; }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            background-color: #1B232D;
+            border: 1px solid #25313F;
+            border-radius: 8px;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus, select:focus { border-color: var(--neon-teal); }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 18px; }
+        .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .submit-btn { background-color: var(--neon-orange); color: #000; }
+        .cancel-btn { background-color: #25313F; color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <div>
+            <h2 style="margin:0; font-size:24px;">Digital Storefront</h2>
+            <span style="color:var(--text-muted); font-size:13px;">Premium Catalog</span>
+        </div>
+        <div class="cart-badge">🛒 Shop Live</div>
+    </div>
+
+    <div class="catalog-grid" id="catalogGrid"></div>
+
+    <div class="modal" id="checkoutModal">
+        <div class="modal-card">
+            <h3>Confirm Logistics Routing</h3>
+            <p id="modalItemDetails" style="font-size: 14px; margin-bottom: 15px; color: var(--neon-purple);"></p>
+            
+            <div class="input-container">
+                <label>Full Name</label>
+                <input type="text" id="custName" placeholder="John Doe">
+            </div>
+            
+            <div class="input-container">
+                <label>Destination Delivery Address</label>
+                <input type="text" id="custAddr" placeholder="123 Main St, Apt 4B">
+            </div>
+
+            <div class="input-container" style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Variant Color</label>
+                    <select id="custColor">
+                        <option value="Default">Default</option>
+                        <option value="Stealth Black">Stealth Black</option>
+                        <option value="Neon Teal">Neon Teal</option>
+                        <option value="Crimson Red">Crimson Red</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label>Order Qty</label>
+                    <select id="custQty" onchange="updateModalTotal()">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <label>Payment Settlement Channel</label>
+                <select id="custPayMethod">
+                    <option value="Mobile Money (MoMo)">Mobile Money (MoMo)</option>
+                    <option value="Card Settlement">Credit/Debit Card</option>
+                    <option value="Crypto Core">Cryptocurrency (USDT)</option>
+                </select>
+            </div>
+
+            <p id="modalTotalDisplay" style="font-weight: bold; font-size: 16px; color: var(--neon-green); margin: 15px 0 5px 0;"></p>
+
+            <div class="btn-group">
+                <button class="modal-btn cancel-btn" onclick="closeCheckoutModal()">Cancel</button>
+                <button class="modal-btn submit-btn" id="confirmOrderBtn">Place Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // Copy-pasted matching Firebase structural credentials
+        const firebaseConfig = {
+            apiKey: "A*****************SVk",
+            authDomain: "my-website-bdbb6.firebaseapp.com",
+            projectId: "my-website-bdbb6",
+            storageBucket: "my-website-bdbb6.firebasestorage.app",
+            messagingSenderId: "370953417016",
+            appId: "1:370953417016:web:38237b03ae8d08196151cd"
+        };
+
+        // Initialize Firebase Global Namespace
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Track active target selection elements globally 
+        let selectedProduct = null;
+        const catalogGrid = document.getElementById('catalogGrid');
+
+        // TRACK VISITS: Increment customer session counter on page initial load
+        database.ref('customerVisits').transaction((currentViews) => {
+            return (currentViews || 0) + 1;
+        });
+
+        // Sync and render store database state in real-time
+        database.ref('storeInventory').on('value', (snapshot) => {
+            const products = [];
+            snapshot.forEach((childSnapshot) => {
+                products.push({
+                    key: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+            renderCatalog(products);
+        });
+
+        function renderCatalog(products) {
+            if (!catalogGrid) return;
+            catalogGrid.innerHTML = '';
+
+            if (products.length === 0) {
+                catalogGrid.innerHTML = '<p style="color:var(--text-muted); grid-column: span 2; text-align:center; padding-top:40px;">Boutique restocking. Check back soon!</p>';
+                return;
+            }
+
+            products.forEach((product) => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                
+                // Out of stock validation display state logic
+                const stockQty = parseInt(product.quantity) || 0;
+                const isOutOfStock = stockQty <= 0;
+                const actionButtonText = isOutOfStock ? 'Sold Out' : 'Acquire';
+                const disabledAttr = isOutOfStock ? 'disabled style="background-color:#25313F; color:var(--text-muted); cursor:not-allowed;"' : '';
+
+                card.innerHTML = `
+                    <img src="${product.imgUrl || ''}" alt="Product Image">
+                    <div class="product-info">
+                        <p class="title-text">${product.title || 'Premium Asset'}</p>
+                        <p class="stock-text">Stock available: ${stockQty} units</p>
+                        <p class="price-text">Price: $ ${product.price || '0.00'}</p>
+                        <div class="card-actions">
+                            <button class="buy-btn" ${disabledAttr} onclick="openCheckoutModal(${JSON.stringify(product).replace(/"/g, '&quot;')})">
+                                ${actionButtonText}
+                            </button>
+                            <button class="like-btn" onclick="likeProduct('${product.key}')">
+                                ❤️ ${product.likes || 0}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                catalogGrid.appendChild(card);
+            });
+        }
+
+        // Realtime transactional counting for likes
+        window.likeProduct = function(key) {
+            database.ref('storeInventory/' + key + '/likes').transaction((currentLikes) => {
+                return (currentLikes || 0) + 1;
+            });
+        };
+
+        // Open transaction order validation processing engine
+        window.openCheckoutModal = function(product) {
+            selectedProduct = product;
+            document.getElementById('modalItemDetails').innerText = `Item: ${product.title}`;
+            document.getElementById('custQty').value = "1";
+            updateModalTotal();
+            document.getElementById('checkoutModal').style.display = 'flex';
+        };
+
+        window.closeCheckoutModal = function() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            selectedProduct = null;
+        };
+
+        window.updateModalTotal = function() {
+            if (!selectedProduct) return;
+            const qty = parseInt(document.getElementById('custQty').value) || 1;
+            const itemPrice = parseFloat(selectedProduct.price) || 0;
+            const total = itemPrice * qty;
+            document.getElementById('modalTotalDisplay').innerText = `Total Due: $ ${total.toFixed(2)}`;
+        };
+
+        // Checkout execution node pushes cleanly structured data directly to 'storeOrders'
+        document.getElementById('confirmOrderBtn').addEventListener('click', () => {
+            const name = document.getElementById('custName').value.trim();
+            const addr = document.getElementById('custAddr').value.trim();
+            const color = document.getElementById('custColor').value;
+            const qty = parseInt(document.getElementById('custQty').value) || 1;
+            const payMethod = document.getElementById('custPayMethod').value;
+
+            if (!name || !addr) {
+                alert('Please fill out your delivery parameters completely.');
+                return;
+            }
+
+            if (!selectedProduct) return;
+
+            const targetStockRef = database.ref('storeInventory/' + selectedProduct.key + '/quantity');
+            
+            // Check current backend inventory levels inside a transactional barrier block
+            targetStockRef.transaction((currentStock) => {
+                if (currentStock === null) return currentStock; // Item doesn't exist
+                if (currentStock < qty) {
+                    return undefined; // Abort transaction block if request exceeds remaining supply
+                }
+                return currentStock - qty;
+            }, (error, committed, snapshot) => {
+                if (error) {
+                    alert('Logistics pipeline handling error. Please try again.');
+                } else if (!committed) {
+                    alert('Order conflict: Requested quantity exceeds existing warehouse supply!');
+                } else {
+                    // Inventory reduction success -> safe to dispatch packet node
+                    const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+                    
+                    database.ref('storeOrders').push({
+                        id: orderId,
+                        itemTitle: selectedProduct.title,
+                        price: parseFloat(selectedProduct.price),
+                        qty: qty,
+                        color: color,
+                        name: name,
+                        addr: addr,
+                        payMethod: payMethod,
+                        status: 'Pending'
+                    });
+
+                    alert(`Order Dispatched Successfully!\nTrack ID Reference: ${orderId}`);
+                    
+                    // Reset input clean states
+                    document.getElementById('custName').value = '';
+                    document.getElementById('custAddr').value = '';
+                    closeCheckoutModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
