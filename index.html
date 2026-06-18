@@ -139,6 +139,23 @@ margin-top: 10px;
 .orange-btn { background-color: var(--neon-orange); color: #000; }
 .gray-btn { background-color: #25313F; color: #FFF; }
 
+.google-btn {
+background-color: #FFFFFF;
+color: #1F1F1F;
+border: none;
+padding: 14px;
+border-radius: 25px;
+width: 100%;
+font-weight: bold;
+font-size: 14px;
+cursor: pointer;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 10px;
+margin: 20px 0;
+}
+
 .glass-card {
 background-color: var(--bg-card);
 border-radius: 16px;
@@ -159,7 +176,7 @@ border-bottom: 1px solid #1B232D;
 .input-container { margin-bottom: 15px; }
 label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 13px; }
 
-input[type="text"], input[type="number"], input[type="tel"], input[type="password"], select {
+input[type="text"], input[type="number"], input[type="tel"], select {
 width: 100%;
 padding: 14px;
 background-color: #1B232D;
@@ -273,90 +290,77 @@ font-size: 14px;
 </div>
 </div>
 
-<!-- SHOP PAGE VIEW (Restored missing component) -->
 <div id="shopPage" class="page-view active">
-    <div id="customerGrid" class="store-grid"></div>
+<div class="store-grid" id="customerGrid"></div>
 </div>
 
 <div id="registerPage" class="page-view">
-    <div class="glass-card" style="max-width: 400px; margin: 40px auto;">
-        <h2 id="authFormTitle" style="color: var(--neon-teal); margin-top: 0; text-align: center;">Sign In</h2>
-        <p id="authFormDesc" style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px; text-align: center;">Access your profile using your email credentials.</p>
+<div class="glass-card" style="max-width: 400px; margin: 40px auto; text-align: center;">
+<h2 style="color: var(--neon-teal); margin-top: 0;">Sign In</h2>
+<p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Log in securely with your Google account to proceed with checkout.</p>
 
-        <div class="input-container">
-            <label>Email Address</label>
-            <input type="text" id="authEmail" placeholder="name@example.com">
-        </div>
-        <div class="input-container">
-            <label>Password</label>
-            <input type="password" id="authPassword" placeholder="••••••••">
-        </div>
-
-        <button class="action-btn teal-btn" id="primaryAuthSubmitBtn" onclick="handleCustomAuth()">Log In</button>
-        
-        <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin: 15px 0;">
-            <span id="toggleAuthModeText">Don't have an account?</span> 
-            <a href="javascript:void(0)" id="toggleAuthModeLink" onclick="toggleAuthMode()" style="color: var(--neon-orange); font-weight: bold; text-decoration: none;">Create Account</a>
-        </p>
-
-        <button class="action-btn gray-btn" style="margin-top:5px;" onclick="switchView('shop')">Cancel</button>
-    </div>
+<button class="google-btn" id="googleAuthBtn" onclick="executeGoogleLogin()">
+<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18">
+Continue with Google
+</button>
+<button class="action-btn gray-btn" style="margin-top:15px;" onclick="switchView('shop')">Cancel</button>
+</div>
 </div>
 
 <div id="cartPage" class="page-view">
-    <div class="glass-card" id="liveTrackCard" style="display: none;">
-        <h3 style="margin-top:0; color: var(--neon-green);">📦 Active Order Tracking</h3>
-        <p id="trackItemName" style="margin: 5px 0; font-weight: bold;"></p>
-        <div class="progress-container">
-            <div class="progress-line"></div>
-            <div class="progress-fill" id="trackBar"></div>
-            <div class="progress-step" id="step0">1</div>
-            <div class="progress-step" id="step1">2</div>
-            <div class="progress-step" id="step2">3</div>
-            <div class="progress-step" id="step3">4</div>
-        </div>
-        <div class="progress-labels">
-            <span>Received</span>
-            <span>Processing</span>
-            <span>In Transit</span>
-            <span>Delivered</span>
-        </div>
-    </div>
+<div class="glass-card" id="liveTrackCard" style="display: none;">
+<h3 style="margin-top:0; color: var(--neon-green);">📦 Active Order Tracking</h3>
+<p id="trackItemName" style="margin: 5px 0; font-weight: bold;"></p>
+<div class="progress-container">
+<div class="progress-line"></div>
+<div class="progress-fill" id="trackBar"></div>
+<div class="progress-step" id="step0">1</div>
+<div class="progress-step" id="step1">2</div>
+<div class="progress-step" id="step2">3</div>
+<div class="progress-step" id="step3">4</div>
+</div>
+<div class="progress-labels">
+<span>Received</span>
+<span>Processing</span>
+<span>In Transit</span>
+<span>Delivered</span>
+</div>
+</div>
 
-    <div class="glass-card" id="cartFormCard">
-        <h3 style="margin-top:0; margin-bottom:15px;">Your Selections</h3>
-        <div id="cartItemsContainer"></div>
+<div class="glass-card" id="cartFormCard">
+<h3 style="margin-top:0; margin-bottom:15px;">Your Selections</h3>
+<div id="cartItemsContainer"></div>
 
-        <div id="checkoutFormSection" style="margin-top: 20px; display: none;">
-            <h3 style="margin-top:0; margin-bottom:15px;">Shipping & Delivery Logistics</h3>
-            <div class="input-container"><label>Customer Name</label><input type="text" id="custName" placeholder="Full Name"></div>
-            <div class="input-container"><label>Contact Phone Number</label><input type="tel" id="custPhone" placeholder="e.g. 0551234567"></div>
-            <div class="input-container"><label>Delivery Address</label><input type="text" id="custAddress" placeholder="Street Address, City"></div>
-            <div class="input-container" style="display: flex; gap: 10px;">
-                <div style="flex: 1;"><label>Item Colour</label>
-                    <select id="custColor">
-                        <option value="As Pictured">As Pictured</option>
-                        <option value="Deep Black">Deep Black</option>
-                        <option value="Off-White">Off-White</option>
-                    </select>
-                </div>
-                <div style="flex: 1;"><label>Quantity</label><input type="number" id="custQty" value="1" min="1"></div>
-            </div>
-            <button class="action-btn teal-btn" onclick="openOrderSummaryPage()">Review Order Summary</button>
-        </div>
-    </div>
+<div id="checkoutFormSection" style="margin-top: 20px; display: none;">
+<h3 style="margin-top:0; margin-bottom:15px;">Shipping & Delivery Logistics</h3>
+<div class="input-container"><label>Customer Name</label><input type="text" id="custName" placeholder="Full Name"></div>
+<div class="input-container"><label>Contact Phone Number</label><input type="tel" id="custPhone" placeholder="e.g. 0551234567"></div>
+<div class="input-container"><label>Delivery Address</label><input type="text" id="custAddress" placeholder="Street Address, City"></div>
+<div class="input-container" style="display: flex; gap: 10px;">
+<div style="flex: 1;"><label>Item Colour</label>
+<select id="custColor">
+<option value="As Pictured">As Pictured</option>
+<option value="Deep Black">Deep Black</option>
+<option value="Off-White">Off-White</option>
+</select>
+</div>
+<div style="flex: 1;"><label>Quantity</label><input type="number" id="custQty" value="1" min="1"></div>
+</div>
+<button class="action-btn teal-btn" onclick="openOrderSummaryPage()">Review Order Summary</button>
+</div>
+</div>
 
-    <div class="glass-card" id="orderSummaryCard" style="display:none;">
-        <h3 style="margin-top:0; color: var(--neon-teal);">Verify Delivery Details</h3>
-        <p style="color: var(--text-muted); font-size:13px;">Please review your purchase details prior to order dispatch.</p>
+<div class="glass-card" id="orderSummaryCard" style="display:none;">
+<h3 style="margin-top:0; color: var(--neon-teal);">Verify Delivery Details</h3>
+<p style="color: var(--text-muted); font-size:13px;">Please review your purchase details prior to order dispatch.</p>
 
-        <div id="summaryDetailsBox" style="margin: 20px 0;"></div>
+<div id="summaryDetailsBox" style="margin: 20px 0;"></div>
 
-        <div style="display:flex; gap:10px;">
-            <button class="action-btn gray-btn" style="flex:1;" onclick="backToCartForm()">Edit Details</button>
-            <button class="action-btn orange-btn" style="flex:1;" onclick="commitFinalOrderDispatch()">Confirm & Place Order</button>
-        </div>
-    </div>
+<div style="display:flex; gap:10px;">
+<button class="action-btn gray-btn" style="flex:1;" onclick="backToCartForm()">Edit Details</button>
+<button class="action-btn orange-btn" style="flex:1;" onclick="commitFinalOrderDispatch()">Confirm & Place Order</button>
+</div>
+</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -365,12 +369,12 @@ font-size: 14px;
 
 <script>
 const firebaseConfig = {
-    apiKey: "AIzaSyBMlTGWecXK_43b97GtIh33BxywQww2HHU",
-    authDomain: "my-website-bdbb6.firebaseapp.com",
-    projectId: "my-website-bdbb6",
-    storageBucket: "my-website-bdbb6.firebasestorage.app",
-    messagingSenderId: "370953417016",
-    appId: "1:370953417016:web:38237b03ae8d08196151cd"
+apiKey: "AIzaSyBMlTGWecXK_43b97GtIh33BxywQww2HHU",
+authDomain: "my-website-bdbb6.firebaseapp.com",
+projectId: "my-website-bdbb6",
+storageBucket: "my-website-bdbb6.firebasestorage.app",
+messagingSenderId: "370953417016",
+appId: "1:370953417016:web:38237b03ae8d08196151cd"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -386,341 +390,311 @@ let selectedProductIndex = null;
 let stagedOrderData = null;
 let cachedInventory = [];
 let cachedOrders = [];
-let authMode = "login"; 
 
 // Global User Auth State Observer
 auth.onAuthStateChanged((user) => {
-    if (user) {
-        let displayName = user.displayName || user.email.split('@')[0];
-        const profilePayload = { name: displayName, email: user.email || "" };
-        localStorage.setItem('registeredUser', JSON.stringify(profilePayload));
-        autoFillProfileFormFields();
-        if(document.getElementById('registerPage').classList.contains('active')) {
-            switchView('cart');
-        }
-    } else {
-        localStorage.removeItem('registeredUser');
-    }
-    updateDropdownContent();
+if (user) {
+const profilePayload = { name: user.displayName || "Google User", email: user.email || "" };
+localStorage.setItem('registeredUser', JSON.stringify(profilePayload));
+autoFillProfileFormFields();
+if(document.getElementById('registerPage').classList.contains('active')) {
+switchView('cart');
+}
+} else {
+localStorage.removeItem('registeredUser');
+}
+updateDropdownContent();
 });
 
+// Track user engagement counters
 database.ref('customerVisits').transaction((currentViews) => {
-    return (currentViews || 0) + 1;
+return (currentViews || 0) + 1;
 });
 
 // Sync Product Listings
 database.ref('storeInventory').on('value', (snapshot) => {
-    cachedInventory = [];
-    snapshot.forEach((childSnapshot) => {
-        cachedInventory.push({ key: childSnapshot.key, ...childSnapshot.val() });
-    });
-    renderStorefront();
-    if (selectedProductIndex !== null) renderCartDetails();
+cachedInventory = [];
+snapshot.forEach((childSnapshot) => {
+cachedInventory.push({ key: childSnapshot.key, ...childSnapshot.val() });
+});
+renderStorefront();
+if (selectedProductIndex !== null) renderCartDetails();
 });
 
 // Sync Live Logistic Pipelines
 database.ref('storeOrders').on('value', (snapshot) => {
-    cachedOrders = [];
-    snapshot.forEach((childSnapshot) => {
-        cachedOrders.push({ key: childSnapshot.key, ...childSnapshot.val() });
-    });
-    checkActiveOrderStatus();
+cachedOrders = [];
+snapshot.forEach((childSnapshot) => {
+cachedOrders.push({ key: childSnapshot.key, ...childSnapshot.val() });
+});
+checkActiveOrderStatus();
+});
+
+// Handle the incoming login credentials after browser redirection
+auth.getRedirectResult()
+.then((result) => {
+if (result.user) {
+const user = result.user;
+console.log("Redirect login successful:", user.displayName);
+const profilePayload = { name: user.displayName || "Google User", email: user.email || "" };
+localStorage.setItem('registeredUser', JSON.stringify(profilePayload));
+autoFillProfileFormFields();
+switchView('cart');
+}
+})
+.catch((error) => {
+console.error("Redirect parsing validation failed:", error.code);
+alert(`Authentication Error!\n\nCode: ${error.code}\n\nReason: ${error.message}`);
 });
 
 function switchView(target) {
-    document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    profileDropdownMenu.style.display = 'none';
+document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+profileDropdownMenu.style.display = 'none';
 
-    if(target === 'shop') {
-        document.getElementById('shopPage').classList.add('active');
-        document.getElementById('shopTab').classList.add('active');
-    } else if (target === 'cart') {
-        document.getElementById('cartPage').classList.add('active');
-        document.getElementById('cartTab').classList.add('active');
-        renderCartDetails();
-        checkActiveOrderStatus();
-    } else if (target === 'register') {
-        document.getElementById('registerPage').classList.add('active');
-        document.getElementById('authEmail').value = "";
-        document.getElementById('authPassword').value = "";
-    }
+if(target === 'shop') {
+document.getElementById('shopPage').classList.add('active');
+document.getElementById('shopTab').classList.add('active');
+} else if (target === 'cart') {
+document.getElementById('cartPage').classList.add('active');
+document.getElementById('cartTab').classList.add('active');
+renderCartDetails();
+checkActiveOrderStatus();
+} else if (target === 'register') {
+document.getElementById('registerPage').classList.add('active');
+}
 }
 
 window.toggleProfileDropdown = function() {
-    profileDropdownMenu.style.display = profileDropdownMenu.style.display === 'block' ? 'none' : 'block';
-    updateDropdownContent();
+profileDropdownMenu.style.display = profileDropdownMenu.style.display === 'block' ? 'none' : 'block';
+updateDropdownContent();
 };
 
 function updateDropdownContent() {
-    let userData = JSON.parse(localStorage.getItem('registeredUser'));
-    if (userData) {
-        document.getElementById('dropdownActiveContent').style.display = 'block';
-        document.getElementById('dropdownEmptyContent').style.display = 'none';
-        document.getElementById('dropName').innerText = userData.name;
-        document.getElementById('dropEmail').innerText = userData.email || 'No email associated';
-    } else {
-        document.getElementById('dropdownActiveContent').style.display = 'none';
-        document.getElementById('dropdownEmptyContent').style.display = 'block'; // Typo fixed here
-    }
+let userData = JSON.parse(localStorage.getItem('registeredUser'));
+if (userData) {
+document.getElementById('dropdownActiveContent').style.display = 'block';
+document.getElementById('dropdownEmptyContent').style.display = 'none';
+document.getElementById('dropName').innerText = userData.name;
+document.getElementById('dropEmail').innerText = userData.email || 'No email associated';
+} else {
+document.getElementById('dropdownActiveContent').style.display = 'none';
+document.getElementById('dropdownEmptyContent').style.display = 'block'; // Fixed layout fallback
+}
 }
 
 window.executeProfileLogout = function() {
-    auth.signOut().then(() => {
-        localStorage.removeItem('registeredUser');
-        document.getElementById('custName').value = '';
-        profileDropdownMenu.style.display = 'none';
-        switchView('shop');
-    });
+auth.signOut().then(() => {
+localStorage.removeItem('registeredUser');
+document.getElementById('custName').value = '';
+profileDropdownMenu.style.display = 'none';
+switchView('shop');
+});
 };
 
 function renderStorefront() {
-    customerGrid.innerHTML = '';
-    if (cachedInventory.length === 0) {
-        customerGrid.innerHTML = '<p style="color:var(--text-muted); grid-column:span 2; text-align:center; padding: 40px 0;">No outfits published yet.</p>';
-        return;
-    }
-    cachedInventory.forEach((product, index) => {
-        let currentLikes = product.likes || 0;
-        let stockQty = parseInt(product.quantity) || 0;
-        let stockDisplayHTML = stockQty > 0 && stockQty < 10 ?
-        `<p class="stock-text" style="color: var(--neon-red); font-weight: bold;">⚠️ Only ${stockQty} left!</p>` : `<p class="stock-text">In Stock: ${stockQty}</p>`;
+customerGrid.innerHTML = '';
+if (cachedInventory.length === 0) {
+customerGrid.innerHTML = '<p style="color:var(--text-muted); grid-column:span 2; text-align:center; padding: 40px 0;">No outfits published yet.</p>';
+return;
+}
+cachedInventory.forEach((product, index) => {
+let currentLikes = product.likes || 0;
+let stockQty = parseInt(product.quantity) || 0;
+let stockDisplayHTML = stockQty > 0 && stockQty < 10 ?
+`<p class="stock-text" style="color: var(--neon-red); font-weight: bold;">⚠️ Only ${stockQty} left!</p>` : `<p class="stock-text">In Stock: ${stockQty}</p>`;
 
-        const isOutOfStock = stockQty <= 0;
-        const actionButtonText = isOutOfStock ? 'Sold Out' : 'Add to Cart';
-        const disabledAttr = isOutOfStock ? 'disabled style="background-color:#25313F; color:var(--text-muted); cursor:not-allowed;"' : '';
+const isOutOfStock = stockQty <= 0;
+const actionButtonText = isOutOfStock ? 'Sold Out' : 'Add to Cart';
+const disabledAttr = isOutOfStock ? 'disabled style="background-color:#25313F; color:var(--text-muted); cursor:not-allowed;"' : '';
 
-        const card = document.createElement('div');
-        card.className = 'store-card';
-        card.innerHTML = `<img src="${product.imgUrl || ''}">
-        <div class="store-card-info">
-            <div>
-                <p class="title-text">${product.title || product.name || 'Premium Item'}</p> ${stockDisplayHTML}
-            </div>
-            <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 4px 0;">
-                    <p class="price-text" style="margin:0;">₵ ${product.price || '0.00'}</p> 
-                    <button onclick="likeProduct(${index})" style="background: rgba(255,61,0,0.1); border: 1px solid rgba(255,61,0,0.2); color: var(--neon-red); padding: 4px 8px; border-radius: 12px; font-size: 11px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 3px;">
-                        ❤️ <span>${currentLikes}</span> 
-                    </button> 
-                </div> 
-                <button class="action-btn teal-btn" ${disabledAttr} onclick="initiateCheckout(${index})">${actionButtonText}</button>
-            </div>
-        </div>`;
-        customerGrid.appendChild(card);
-    });
+const card = document.createElement('div');
+card.className = 'store-card';
+card.innerHTML = `<img src="${product.imgUrl || ''}">
+<div class="store-card-info">
+<div>
+<p class="title-text">${product.title || product.name || 'Premium Item'}</p> ${stockDisplayHTML}
+</div>
+<div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin: 4px 0;">
+<p class="price-text" style="margin:0;">₵ ${product.price || '0.00'}</p> <button onclick="likeProduct(${index})" style="background: rgba(255,61,0,0.1); border: 1px solid rgba(255,61,0,0.2); color: var(--neon-red); padding: 4px 8px; border-radius: 12px; font-size: 11px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 3px;">
+❤️ <span>${currentLikes}</span> </button> </div> <button class="action-btn teal-btn" ${disabledAttr} onclick="initiateCheckout(${index})">${actionButtonText}</button>
+</div>
+</div>`;
+customerGrid.appendChild(card);
+});
 }
 
 window.likeProduct = function(index) {
-    const product = cachedInventory[index];
-    if (product && product.key) {
-        database.ref('storeInventory/' + product.key + '/likes').transaction((currentLikes) => {
-            return (currentLikes || 0) + 1;
-        });
-    }
+const product = cachedInventory[index];
+if (product && product.key) {
+database.ref('storeInventory/' + product.key + '/likes').transaction((currentLikes) => {
+return (currentLikes || 0) + 1;
+});
+}
 };
 
 window.initiateCheckout = function(index) {
-    selectedProductIndex = index;
-    cartCount.innerText = '1';
-    if (!localStorage.getItem('registeredUser')) {
-        switchView('register');
-    } else {
-        switchView('cart');
-    }
+selectedProductIndex = index;
+cartCount.innerText = '1';
+if (!localStorage.getItem('registeredUser')) {
+switchView('register');
+} else {
+switchView('cart');
+}
 };
 
-window.toggleAuthMode = function() {
-    const title = document.getElementById('authFormTitle');
-    const desc = document.getElementById('authFormDesc');
-    const submitBtn = document.getElementById('primaryAuthSubmitBtn');
-    const toggleText = document.getElementById('toggleAuthModeText');
-    const toggleLink = document.getElementById('toggleAuthModeLink');
+window.executeGoogleLogin = function() {
+const provider = new firebase.auth.GoogleAuthProvider();
 
-    if (authMode === "login") {
-        authMode = "register";
-        title.innerText = "Create Account";
-        desc.innerText = "Sign up with your details to manage your orders securely.";
-        submitBtn.innerText = "Register Account";
-        toggleText.innerText = "Already have an account?";
-        toggleLink.innerText = "Log In";
-    } else {
-        authMode = "login";
-        title.innerText = "Sign In";
-        desc.innerText = "Access your profile using your email credentials.";
-        submitBtn.innerText = "Log In";
-        toggleText.innerText = "Don't have an account?";
-        toggleLink.innerText = "Create Account";
-    }
-};
+provider.setCustomParameters({
+prompt: 'select_account'
+});
 
-window.handleCustomAuth = function() {
-    const email = document.getElementById('authEmail').value.trim();
-    const password = document.getElementById('authPassword').value;
-
-    if (!email || !password) {
-        return alert("Please input both fields completely.");
-    }
-    if (password.length < 6) {
-        return alert("Security check: Password must be at least 6 characters long.");
-    }
-
-    if (authMode === "register") {
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                alert("Account registration complete!");
-                switchView('cart');
-            })
-            .catch((error) => {
-                alert(`Registration Refused:\n${error.message}`);
-            });
-    } else {
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                switchView('cart');
-            })
-            .catch((error) => {
-                alert(`Access Denied:\n${error.message}`);
-            });
-    }
+console.log("Redirecting secure connection...");
+auth.signInWithRedirect(provider)
+.catch((error) => {
+alert(`Redirect Trigger Failed!\nReason:${error.message}`);
+});
 };
 
 function autoFillProfileFormFields() {
-    const userData = JSON.parse(localStorage.getItem('registeredUser'));
-    const inputField = document.getElementById('custName');
-    if (userData && inputField) {
-        inputField.value = userData.name || '';
-    }
+const userData = JSON.parse(localStorage.getItem('registeredUser'));
+const inputField = document.getElementById('custName');
+if (userData && inputField) {
+inputField.value = userData.name || '';
+}
 }
 
 function renderCartDetails() {
-    cartItemsContainer.innerHTML = '';
-    if (selectedProductIndex === null || !cachedInventory[selectedProductIndex]) {
-        cartItemsContainer.innerHTML = '<p style="color:var(--text-muted); margin:0; text-align:center; padding: 20px 0;">Your cart is empty.</p>';
-        document.getElementById('checkoutFormSection').style.display = 'none';
-        cartCount.innerText = '0';
-        return;
-    }
+cartItemsContainer.innerHTML = '';
+if (selectedProductIndex === null || !cachedInventory[selectedProductIndex]) {
+cartItemsContainer.innerHTML = '<p style="color:var(--text-muted); margin:0; text-align:center; padding: 20px 0;">Your cart is empty.</p>';
+document.getElementById('checkoutFormSection').style.display = 'none';
+cartCount.innerText = '0';
+return;
+}
 
-    document.getElementById('checkoutFormSection').style.display = 'block';
-    let prod = cachedInventory[selectedProductIndex];
-    cartItemsContainer.innerHTML = `<div class="cart-summary-item"><img src="${prod.imgUrl || ''}">
-    <div class="cart-details" style="flex-grow:1;"><p class="title-text">${prod.title || prod.name}</p><p class="price-text">₵ ${prod.price}</p></div>
-    <button onclick="clearCart()" style="background:none; border:none; color:var(--neon-red); font-weight:bold; cursor:pointer;">Remove</button></div>`;
-    autoFillProfileFormFields();
+document.getElementById('checkoutFormSection').style.display = 'block';
+let prod = cachedInventory[selectedProductIndex];
+cartItemsContainer.innerHTML = `<div class="cart-summary-item"><img src="${prod.imgUrl || ''}">
+<div class="cart-details" style="flex-grow:1;"><p class="title-text">${prod.title || prod.name}</p><p class="price-text">₵ ${prod.price}</p></div>
+<button onclick="clearCart()" style="background:none; border:none; color:var(--neon-red); font-weight:bold; cursor:pointer;">Remove</button></div>`;
+autoFillProfileFormFields();
 }
 
 window.clearCart = function() {
-    selectedProductIndex = null;
-    renderCartDetails();
+selectedProductIndex = null;
+renderCartDetails();
 };
 
 window.openOrderSummaryPage = function() {
-    let prod = cachedInventory[selectedProductIndex];
-    if (!prod) return;
+let prod = cachedInventory[selectedProductIndex];
+if (!prod) return;
 
-    const name = document.getElementById('custName').value.trim();
-    const phone = document.getElementById('custPhone').value.trim();
-    const addr = document.getElementById('custAddress').value.trim();
-    const qty = parseInt(document.getElementById('custQty').value);
-    const color = document.getElementById('custColor').value;
+const name = document.getElementById('custName').value.trim();
+const phone = document.getElementById('custPhone').value.trim();
+const addr = document.getElementById('custAddress').value.trim();
+const qty = parseInt(document.getElementById('custQty').value);
+const color = document.getElementById('custColor').value;
 
-    if (!name || !phone || !addr || isNaN(qty) || qty < 1) return alert('Fill out delivery and contact parameters completely!');
-    if (qty > prod.quantity) return alert(`Only ${prod.quantity} items left in stock.`);
+if (!name || !phone || !addr || isNaN(qty) || qty < 1) return alert('Fill out delivery and contact parameters completely!');
+if (qty > prod.quantity) return alert(`Only ${prod.quantity} items left in stock.`);
 
-    const orderTotalCost = parseFloat(prod.price) * qty;
+const orderTotalCost = parseFloat(prod.price) * qty;
 
-    stagedOrderData = {
-        id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
-        itemTitle: prod.title || prod.name,
-        price: parseFloat(prod.price),
-        name,
-        phone,
-        addr,
-        qty,
-        color,
-        payMethod: 'Standard Order',
-        status: 'Pending'
-    };
+stagedOrderData = {
+id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
+itemTitle: prod.title || prod.name,
+price: parseFloat(prod.price),
+name,
+phone,
+addr,
+qty,
+color,
+payMethod: 'Standard Order',
+status: 'Pending'
+};
 
-    document.getElementById('summaryDetailsBox').innerHTML = `<div class="summary-row"><span>Item Variant:</span><strong>${prod.title || prod.name} (${color})</strong></div> <div class="summary-row"><span>Quantity:</span><strong>${qty} units</strong></div>
-    <div class="summary-row"><span>Delivery Name:</span><strong>${name}</strong></div> <div class="summary-row"><span>Contact Phone:</span><strong>${phone}</strong></div>
-    <div class="summary-row"><span>Destination Address:</span><strong>${addr}</strong></div> <div class="summary-row" style="border:none; margin-top:10px; font-size:16px; color:var(--neon-orange);"><span>Total Bill:</span><strong>₵ ${orderTotalCost.toFixed(2)}</strong></div>`;
-    document.getElementById('cartFormCard').style.display = 'none';
-    document.getElementById('orderSummaryCard').style.display = 'block';
+document.getElementById('summaryDetailsBox').innerHTML = `<div class="summary-row"><span>Item Variant:</span><strong>${prod.title || prod.name} (${color})</strong></div> <div class="summary-row"><span>Quantity:</span><strong>${qty} units</strong></div>
+<div class="summary-row"><span>Delivery Name:</span><strong>${name}</strong></div> <div class="summary-row"><span>Contact Phone:</span><strong>${phone}</strong></div>
+<div class="summary-row"><span>Destination Address:</span><strong>${addr}</strong></div> <div class="summary-row" style="border:none; margin-top:10px; font-size:16px; color:var(--neon-orange);"><span>Total Bill:</span><strong>₵ ${orderTotalCost.toFixed(2)}</strong></div>
+`;
+document.getElementById('cartFormCard').style.display = 'none';
+document.getElementById('orderSummaryCard').style.display = 'block';
 };
 
 window.backToCartForm = function() {
-    document.getElementById('orderSummaryCard').style.display = 'none';
-    document.getElementById('cartFormCard').style.display = 'block';
+document.getElementById('orderSummaryCard').style.display = 'none';
+document.getElementById('cartFormCard').style.display = 'block';
 };
 
 window.commitFinalOrderDispatch = function() {
-    let prod = cachedInventory[selectedProductIndex];
-    if (!prod || !prod.key) return;
+let prod = cachedInventory[selectedProductIndex];
+if (!prod || !prod.key) return;
 
-    const targetStockRef = database.ref('storeInventory/' + prod.key + '/quantity');
+const targetStockRef = database.ref('storeInventory/' + prod.key + '/quantity');
 
-    targetStockRef.transaction((currentStock) => {
-        if (currentStock === null) return currentStock;
-        if (currentStock < stagedOrderData.qty) return undefined;
-        return currentStock - stagedOrderData.qty;
-    }, (error, committed) => {
-        if (error) {
-            alert('Logistics routing pipeline error.');
-        } else if (!committed) {
-            alert('Conflict detected: Available stock changed prior to confirmation processing!');
-        } else {
-            const uniquePushRef = database.ref('storeOrders').push();
-            uniquePushRef.set(stagedOrderData);
+targetStockRef.transaction((currentStock) => {
+if (currentStock === null) return currentStock;
+if (currentStock < stagedOrderData.qty) return undefined;
+return currentStock - stagedOrderData.qty;
+}, (error, committed) => {
+if (error) {
+alert('Logistics routing pipeline error.');
+} else if (!committed) {
+alert('Conflict detected: Available stock changed prior to confirmation processing!');
+} else {
+const uniquePushRef = database.ref('storeOrders').push();
+uniquePushRef.set(stagedOrderData);
 
-            localStorage.setItem('lastPlacedOrderFirebaseKey', uniquePushRef.key);
-            alert('Order placed successfully!');
+localStorage.setItem('lastPlacedOrderFirebaseKey', uniquePushRef.key);
+alert('Order placed successfully!');
 
-            document.getElementById('custAddress').value = '';
-            document.getElementById('custPhone').value = '';
-            document.getElementById('orderSummaryCard').style.display = 'none';
-            document.getElementById('cartFormCard').style.display = 'block';
+document.getElementById('custAddress').value = '';
+document.getElementById('custPhone').value = '';
+document.getElementById('orderSummaryCard').style.display = 'none';
+document.getElementById('cartFormCard').style.display = 'block';
 
-            selectedProductIndex = null;
-            stagedOrderData = null;
-            cartCount.innerText = '0';
+selectedProductIndex = null;
+stagedOrderData = null;
+cartCount.innerText = '0';
 
-            renderCartDetails();
-        }
-    });
+renderCartDetails();
+}
+});
 };
 
 function checkActiveOrderStatus() {
-    let lastFirebaseKey = localStorage.getItem('lastPlacedOrderFirebaseKey');
-    if(!lastFirebaseKey) {
-        document.getElementById('liveTrackCard').style.display = 'none';
-        return;
-    }
+let lastFirebaseKey = localStorage.getItem('lastPlacedOrderFirebaseKey');
+if(!lastFirebaseKey) {
+document.getElementById('liveTrackCard').style.display = 'none';
+return;
+}
 
-    let activeOrder = cachedOrders.find(o => o.key === lastFirebaseKey);
-    if(!activeOrder) {
-        document.getElementById('liveTrackCard').style.display = 'none';
-        return;
-    }
+let activeOrder = cachedOrders.find(o => o.key === lastFirebaseKey);
+if(!activeOrder) {
+document.getElementById('liveTrackCard').style.display = 'none';
+return;
+}
 
-    document.getElementById('liveTrackCard').style.display = 'block';
-    document.getElementById('trackItemName').innerText = `"${activeOrder.itemTitle}" (${activeOrder.status || 'Pending'})`;
+document.getElementById('liveTrackCard').style.display = 'block';
+document.getElementById('trackItemName').innerText = `"${activeOrder.itemTitle}" (${activeOrder.status || 'Pending'})`;
 
-    const states = ['Pending', 'Processing', 'In Transit', 'Delivered'];
-    let currentIdx = states.indexOf(activeOrder.status);
-    if(currentIdx === -1) currentIdx = 0;
+const states = ['Pending', 'Processing', 'In Transit', 'Delivered'];
+let currentIdx = states.indexOf(activeOrder.status);
+if(currentIdx === -1) currentIdx = 0;
 
-    document.getElementById('trackBar').style.width = `${(currentIdx / 3) * 100}%`;
+document.getElementById('trackBar').style.width = `${(currentIdx / 3) * 100}%`;
 
-    states.forEach((s, idx) => {
-        let stepEl = document.getElementById(`step${idx}`);
-        if (stepEl) {
-            stepEl.className = 'progress-step';
-            if(idx < currentIdx) stepEl.classList.add('completed');
-            if(idx === currentIdx) stepEl.classList.add('active');
-        }
-    });
+states.forEach((s, idx) => {
+let stepEl = document.getElementById(`step${idx}`);
+if (stepEl) {
+stepEl.className = 'progress-step';
+if(idx < currentIdx) stepEl.classList.add('completed');
+if(idx === currentIdx) stepEl.classList.add('active');
+}
+});
 }
 </script>
 </body>
