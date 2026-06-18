@@ -139,23 +139,6 @@ margin-top: 10px;
 .orange-btn { background-color: var(--neon-orange); color: #000; }
 .gray-btn { background-color: #25313F; color: #FFF; }
 
-.google-btn {
-background-color: #FFFFFF;
-color: #1F1F1F;
-border: none;
-padding: 14px;
-border-radius: 25px;
-width: 100%;
-font-weight: bold;
-font-size: 14px;
-cursor: pointer;
-display: flex;
-justify-content: center;
-align-items: center;
-gap: 10px;
-margin: 20px 0;
-}
-
 .glass-card {
 background-color: var(--bg-card);
 border-radius: 16px;
@@ -176,7 +159,7 @@ border-bottom: 1px solid #1B232D;
 .input-container { margin-bottom: 15px; }
 label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 13px; }
 
-input[type="text"], input[type="number"], input[type="tel"], select {
+input[type="text"], input[type="number"], input[type="tel"], input[type="password"], select {
 width: 100%;
 padding: 14px;
 background-color: #1B232D;
@@ -289,6 +272,12 @@ font-size: 14px;
 </div>
 </div>
 </div>
+
+<!-- SHOP PAGE VIEW (Restored missing component) -->
+<div id="shopPage" class="page-view active">
+    <div id="customerGrid" class="store-grid"></div>
+</div>
+
 <div id="registerPage" class="page-view">
     <div class="glass-card" style="max-width: 400px; margin: 40px auto;">
         <h2 id="authFormTitle" style="color: var(--neon-teal); margin-top: 0; text-align: center;">Sign In</h2>
@@ -300,7 +289,7 @@ font-size: 14px;
         </div>
         <div class="input-container">
             <label>Password</label>
-            <input type="password" id="authPassword" placeholder="••••••••" style="width:100%; padding:14px; background-color:#1B232D; border:1px solid #25313F; border-radius:10px; color:white; box-sizing:border-box; font-size:15px; outline:none;">
+            <input type="password" id="authPassword" placeholder="••••••••">
         </div>
 
         <button class="action-btn teal-btn" id="primaryAuthSubmitBtn" onclick="handleCustomAuth()">Log In</button>
@@ -397,12 +386,11 @@ let selectedProductIndex = null;
 let stagedOrderData = null;
 let cachedInventory = [];
 let cachedOrders = [];
-let authMode = "login"; // Track if user is Logging in or Registering
+let authMode = "login"; 
 
 // Global User Auth State Observer
 auth.onAuthStateChanged((user) => {
     if (user) {
-        // Fallback name parsing if display name hasn't propagated yet
         let displayName = user.displayName || user.email.split('@')[0];
         const profilePayload = { name: displayName, email: user.email || "" };
         localStorage.setItem('registeredUser', JSON.stringify(profilePayload));
@@ -416,7 +404,6 @@ auth.onAuthStateChanged((user) => {
     updateDropdownContent();
 });
 
-// Track user engagement counters
 database.ref('customerVisits').transaction((currentViews) => {
     return (currentViews || 0) + 1;
 });
@@ -455,7 +442,6 @@ function switchView(target) {
         checkActiveOrderStatus();
     } else if (target === 'register') {
         document.getElementById('registerPage').classList.add('active');
-        // Reset auth fields on load
         document.getElementById('authEmail').value = "";
         document.getElementById('authPassword').value = "";
     }
@@ -475,7 +461,7 @@ function updateDropdownContent() {
         document.getElementById('dropEmail').innerText = userData.email || 'No email associated';
     } else {
         document.getElementById('dropdownActiveContent').style.display = 'none';
-        document.getElementById('dropdownEmptyContent').style.block = 'block';
+        document.getElementById('dropdownEmptyContent').style.display = 'block'; // Typo fixed here
     }
 }
 
@@ -544,7 +530,6 @@ window.initiateCheckout = function(index) {
     }
 };
 
-// Toggle UI layout between Log In and Registering forms
 window.toggleAuthMode = function() {
     const title = document.getElementById('authFormTitle');
     const desc = document.getElementById('authFormDesc');
@@ -569,7 +554,6 @@ window.toggleAuthMode = function() {
     }
 };
 
-// Central execution pipeline for form submissions
 window.handleCustomAuth = function() {
     const email = document.getElementById('authEmail').value.trim();
     const password = document.getElementById('authPassword').value;
