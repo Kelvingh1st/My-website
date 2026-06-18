@@ -5,36 +5,178 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Store Admin Portal</title>
 <style>
-:root {
-  --bg-deep:#0B0E11; --bg-card:#141A21; --text-main:#FFFFFF; --text-muted:#788694;
-  --neon-teal:#00E5FF; --neon-orange:#FF9100; --neon-red:#FF3D00; --neon-green:#00E676;
-}
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:var(--bg-deep); color:var(--text-main); margin:0; padding:15px; padding-bottom:40px;}
-.glass-card { background:var(--bg-card); border-radius:16px; padding:20px; margin-bottom:15px; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
-.login-screen { position:fixed; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; }
-.login-card { width:100%; max-width:420px; text-align:center; }
-.input-container { margin-bottom:15px; }
-input[type="text"], input[type="password"], input[type="file"], input[type="number"], input[type="tel"] { width:100%; padding:14px; background:#1B232D; border:1px solid #25313F; border-radius:10px; color:#fff; box-sizing:border-box; font-size:15px; outline:none; }
-.action-btn { padding:12px 16px; border-radius:10px; border:none; cursor:pointer; font-weight:bold; }
-.teal-btn { background:var(--neon-teal); color:#000; }
-.orange-btn { background:var(--neon-orange); color:#000; }
-.header-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.status-badge { background:rgba(0,229,255,0.1); color:var(--neon-teal); padding:6px 12px; border-radius:20px; font-size:12px; }
-.admin-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin-top:15px; }
-.admin-card { background:var(--bg-card); border-radius:12px; padding:12px; display:flex; flex-direction:column; }
-.admin-card img { width:100%; height:110px; object-fit:cover; border-radius:8px; }
-.order-row { background:#1B232D; border:1px solid #25313F; border-radius:12px; padding:12px; margin-bottom:10px; }
-.order-meta { font-size:11px; color:var(--text-muted); margin-bottom:6px; }
-.order-group { margin-bottom:12px; }
-.order-group-header { display:flex; justify-content:space-between; align-items:center; gap:12px; background:#0F1417; border:1px solid #25313F; padding:10px 12px; border-radius:12px; }
-.group-left { font-size:14px; font-weight:700; color:var(--neon-teal); }
-.group-meta { font-size:13px; color:var(--text-muted); }
-.small { padding:6px 10px; font-size:13px; border-radius:8px; }
-.note { color:var(--text-muted); font-size:13px; margin-top:8px; }
-#recaptcha-admin { margin-top:8px; }
+:root{--bg-deep:#0B0E11;--bg-card:#141A21;--text-main:#FFFFFF;--text-muted:#788694;--neon-teal:#00E5FF;--neon-orange:#FF9100;--neon-red:#FF3D00;--neon-green:#00E676}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg-deep);color:var(--text-main);margin:0;padding:15px;padding-bottom:40px}
+.glass-card{background:var(--bg-card);border-radius:16px;padding:20px;margin-bottom:15px;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.login-screen{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.login-card{width:100%;max-width:420px;text-align:center}
+.input-container{margin-bottom:15px}
+input[type="text"],input[type="password"],input[type="file"],input[type="number"],input[type="tel"]{width:100%;padding:14px;background:#1B232D;border:1px solid #25313F;border-radius:10px;color:#fff;box-sizing:border-box;font-size:15px;outline:none}
+.action-btn{padding:12px 16px;border-radius:10px;border:none;cursor:pointer;font-weight:bold}
+.teal-btn{background:var(--neon-teal);color:#000}.orange-btn{background:var(--neon-orange);color:#000}
+.header-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.status-badge{background:rgba(0,229,255,0.1);color:var(--neon-teal);padding:6px 12px;border-radius:20px;font-size:12px}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:15px}
+.admin-card{background:var(--bg-card);border-radius:12px;padding:12px;display:flex;flex-direction:column}
+.admin-card img{width:100%;height:110px;object-fit:cover;border-radius:8px}
+.order-row{background:#1B232D;border:1px solid #25313F;border-radius:12px;padding:12px;margin-bottom:10px}.order-meta{font-size:11px;color:var(--text-muted);margin-bottom:6px}
+.order-group{margin-bottom:12px}.order-group-header{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#0F1417;border:1px solid #25313F;padding:10px 12px;border-radius:12px}
+.group-left{font-size:14px;font-weight:700;color:var(--neon-teal)}.group-meta{font-size:13px;color:var(--text-muted)}.small{padding:6px 10px;font-size:13px;border-radius:8px}.note{color:var(--text-muted);font-size:13px;margin-top:8px}
 </style>
 </head>
 <body>
+
+<div id="loginGate" class="login-screen">
+  <div class="glass-card login-card">
+    <h2 style="color:var(--neon-teal);margin-top:0;">Administrative Portal</h2>
+    <p style="color:var(--text-muted);margin-bottom:12px;">Enter admin secret stored at /adminSecret in Realtime Database.</p>
+    <div class="input-container"><input id="adminSecretInput" type="password" placeholder="Enter admin secret"></div>
+    <div style="display:flex;gap:8px;justify-content:center;"><button id="adminSignBtn" class="action-btn teal-btn" onclick="adminSignIn()">Sign In</button></div>
+    <p class="note">Set a secret at /adminSecret in your Realtime Database to enable admin access.</p>
+  </div>
+</div>
+
+<div id="mainPanel" style="display:none;max-width:1000px;margin:0 auto;">
+  <div class="header-bar">
+    <div><h2 style="margin:0;font-size:24px;">Administrative Seller Portal</h2><span style="color:var(--text-muted);font-size:13px;">Goods Management</span></div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div id="adminInfo" style="text-align:right;"><div id="adminName" style="font-weight:700;"></div><div id="adminNote" style="font-size:12px;color:var(--text-muted);"></div></div>
+      <div class="status-badge">● Online</div>
+    </div>
+  </div>
+
+  <div class="glass-card">
+    <h3>Live Traffic Analytics</h3>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;"><div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Overview</div><div style="display:flex;gap:12px;"><div style="background:#0F1417;padding:12px;border-radius:10px;"><div style="font-size:20px;font-weight:700;" id="viewsCount">0</div><div style="font-size:12px;color:var(--text-muted);">Views</div></div><div style="background:#0F1417;padding:12px;border-radius:10px;"><div style="font-size:20px;font-weight:700;" id="ordersCount">0</div><div style="font-size:12px;color:var(--text-muted);">Orders</div></div><div style="background:#0F1417;padding:12px;border-radius:10px;"><div style="font-size:20px;font-weight:700;" id="savesCount">0</div><div style="font-size:12px;color:var(--text-muted);">Saves</div></div></div></div>
+    </div>
+  </div>
+
+  <div class="glass-card">
+    <h3 style="color:var(--neon-teal);margin-bottom:15px;">📦 Incoming Logistics Orders</h3>
+    <div id="adminOrdersLog"></div>
+  </div>
+
+  <div class="glass-card">
+    <h3>Publish New Cargo</h3>
+    <div class="input-container"><label>Product Title</label><input id="prodName" type="text" placeholder="Jordan 3"></div>
+    <div style="display:flex;gap:10px;"><div style="flex:1;" class="input-container"><label>Price (₵)</label><input id="prodPrice" type="number" placeholder="99.00"></div><div style="flex:1;" class="input-container"><label>In Stock (Qty)</label><input id="prodQty" type="number" placeholder="15"></div></div>
+    <div class="input-container"><label>Media Capture</label><input id="prodFile" type="file" accept="image/*"></div>
+    <div style="display:flex;gap:8px;"><button id="addBtn" class="action-btn orange-btn">Push Stock Live</button><button id="signOutBtn" class="action-btn" style="background:#25313F;color:#fff;" onclick="adminSignOut()">Sign Out</button></div>
+  </div>
+
+  <div><h3 style="margin-left:5px;">Active Items on Display</h3><div class="admin-grid" id="adminGrid"></div></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+/* Replace with your Firebase config (Realtime DB must be enabled and rules allow access) */
+const firebaseConfig = {
+  apiKey: "A*****************SVk",
+  authDomain: "my-website-bdbb6.firebaseapp.com",
+  projectId: "my-website-bdbb6",
+  storageBucket: "my-website-bdbb6.firebasestorage.app",
+  messagingSenderId: "370953417016",
+  appId: "1:370953417016:web:38237b03ae8d08196151cd"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+let cachedInventory = [], cachedOrders = [], usersMap = {};
+
+// Admin "authentication" using a secret stored in the database at /adminSecret
+async function adminSignIn() {
+  const entered = (document.getElementById('adminSecretInput').value || '').trim();
+  if (!entered) return alert('Enter admin secret.');
+  const snap = await database.ref('adminSecret').once('value');
+  const secret = snap.exists() ? snap.val() : null;
+  if (!secret) return alert('No adminSecret found in database — set /adminSecret to enable admin access.');
+  if (entered !== secret) return alert('Admin secret incorrect.');
+  // success
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('mainPanel').style.display = 'block';
+  document.getElementById('adminName').innerText = 'Admin (DB secret)';
+  document.getElementById('adminNote').innerText = 'Authorized via /adminSecret';
+  initDataListeners();
+}
+
+function adminSignOut() {
+  document.getElementById('mainPanel').style.display = 'none';
+  document.getElementById('loginGate').style.display = 'flex';
+}
+
+// Data listeners
+function initDataListeners() {
+  database.ref('storeInventory').on('value', snap => { cachedInventory = []; snap.forEach(c => cachedInventory.push({ key: c.key, ...c.val() })); renderAdminInventory(); updateTrafficAnalytics(); });
+  database.ref('storeOrders').on('value', snap => { cachedOrders = []; snap.forEach(c => cachedOrders.push({ key: c.key, ...c.val() })); database.ref('users').once('value').then(su => { usersMap = {}; su.forEach(u=> usersMap[u.key] = u.val()); renderAdminOrders(); updateTrafficAnalytics(); }); });
+  database.ref('users').on('value', snap => { usersMap = {}; snap.forEach(u => usersMap[u.key] = u.val()); renderAdminOrders(); });
+}
+
+// Inventory rendering
+const adminGrid = document.getElementById('adminGrid');
+function renderAdminInventory() {
+  if (!adminGrid) return;
+  adminGrid.innerHTML = '';
+  if (!cachedInventory.length) { adminGrid.innerHTML = '<p style="color:var(--text-muted);padding-left:5px;">Warehouse grid clear.</p>'; return; }
+  cachedInventory.forEach(product => {
+    const card = document.createElement('div'); card.className = 'admin-card';
+    card.innerHTML = `<img src="${product.imgUrl||''}"><div style="padding-top:8px;"><div style="font-weight:700;">${product.title||product.name||'Unnamed Product'}</div><div style="color:var(--text-muted);font-size:13px;">Qty: ${product.quantity??0} • ❤️ ${product.likes||0}</div><div style="margin-top:8px;"><button style="width:100%;padding:8px;border-radius:8px;border:none;background:rgba(255,61,0,0.08);color:var(--neon-red)" onclick="deleteItem('${product.key}')">Delete</button></div></div>`;
+    adminGrid.appendChild(card);
+  });
+}
+window.deleteItem = function(key){ if (confirm('Delete this product?')) database.ref('storeInventory/' + key).remove(); };
+
+document.getElementById('addBtn').addEventListener('click', () => {
+  const name = (document.getElementById('prodName').value||'').trim(); const price = (document.getElementById('prodPrice').value||'').trim(); const qty = (document.getElementById('prodQty').value||'').trim(); const file = document.getElementById('prodFile').files[0];
+  if (!name || !price || !qty || !file) { alert('Fill completely before data processing!'); return; }
+  const reader = new FileReader(); reader.onload = e => { database.ref('storeInventory').push({ title:name, price:parseFloat(price).toFixed(2), quantity:parseInt(qty), likes:0, imgUrl:e.target.result }).then(()=>{ document.getElementById('prodName').value=''; document.getElementById('prodPrice').value=''; document.getElementById('prodQty').value=''; document.getElementById('prodFile').value=''; }); }; reader.readAsDataURL(file);
+});
+
+// Orders display grouped by buyerUid (fallback to phone)
+const adminOrdersLog = document.getElementById('adminOrdersLog');
+function renderAdminOrders() {
+  if (!adminOrdersLog) return;
+  adminOrdersLog.innerHTML = '';
+  if (!cachedOrders.length) { adminOrdersLog.innerHTML = '<p style="color:var(--text-muted);margin:0;font-size:14px;">No client delivery packets received yet.</p>'; return; }
+  const groups = {};
+  cachedOrders.forEach(o => { const key = (o.buyerUid || o.buyerPhone || o.phone || 'Guest').toString(); if (!groups[key]) groups[key] = []; groups[key].push(o); });
+  const keys = Object.keys(groups).sort((a,b) => { if (a==='Guest') return 1; if (b==='Guest') return -1; return a.localeCompare(b); });
+  keys.forEach(gk => {
+    const orders = groups[gk];
+    const total = orders.reduce((s,o) => s + ((parseFloat(o.price)||0) * (o.qty||1)), 0);
+    const userInfo = usersMap[gk] || {};
+    const title = (gk === 'Guest') ? 'Guest' : (userInfo.name || userInfo.phone || gk);
+    const escaped = encodeURIComponent(gk).replace(/%/g,'_');
+    const container = document.createElement('div'); container.className = 'order-group';
+    container.innerHTML = `<div class="order-group-header"><div style="display:flex;flex-direction:column;align-items:flex-start;"><div class="group-left">${title}</div><div class="group-meta">${gk!=='Guest' ? 'UID: '+gk : ''} ${userInfo.phone ? ' • ' + userInfo.phone : ''}</div></div><div style="display:flex;gap:8px;align-items:center;"><div style="color:var(--text-muted);font-size:13px;">${orders.length} order(s) • ₵ ${total.toFixed(2)}</div><button class="action-btn small teal-btn" onclick="toggleGroup('${escaped}')">Toggle</button></div></div><div id="group-${escaped}" style="display:none;padding-top:8px;"></div>`;
+    adminOrdersLog.appendChild(container);
+    const listEl = container.querySelector('#group-'+escaped);
+    orders.slice().reverse().forEach(order => {
+      const tot = ((parseFloat(order.price)||0)*(order.qty||1)).toFixed(2);
+      const row = document.createElement('div'); row.className = 'order-row';
+      row.innerHTML = `<div class="order-meta">ID: ${order.id||'N/A'} • ${order.payMethod||'Standard'}</div><div style="font-size:15px;font-weight:700;color:var(--neon-orange);">${order.qty||1}x ${order.itemTitle||'Item'} (${order.color||'Default'}) - ₵ ${tot}</div><div style="font-size:13px;margin-top:6px;"><div>To: <strong>${order.name||'Guest'}</strong></div><div style="color:var(--text-muted);">Destination: ${order.addr||'No Address'}</div><div style="color:var(--text-muted);">Contact: ${order.phone||order.buyerPhone||'N/A'}</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;"><div style="font-size:13px;color:var(--text-muted);">Delivery Status:</div><div><select onchange="updateFulfillmentProgress('${order.key}', this.value)" style="padding:8px;background:#1B232D;border:1px solid #25313F;color:var(--neon-green);border-radius:8px;"><option value="Pending" ${order.status==='Pending'?'selected':''}>Pending</option><option value="Processing" ${order.status==='Processing'?'selected':''}>Processing</option><option value="In Transit" ${order.status==='In Transit'?'selected':''}>In Transit</option><option value="Delivered" ${order.status==='Delivered'?'selected':''}>Delivered</option></select></div></div>`;
+      listEl.appendChild(row);
+    });
+  });
+}
+
+window.toggleGroup = function(escaped){ const el = document.getElementById('group-' + escaped); if (!el) return; el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
+window.updateFulfillmentProgress = function(key, newStatus){ database.ref('storeOrders/' + key).update({ status: newStatus }); };
+
+function updateTrafficAnalytics() {
+  database.ref('customerVisits').once('value', snap => {
+    const views = snap.val() || 0; document.getElementById('viewsCount').innerText = views.toLocaleString();
+    document.getElementById('ordersCount').innerText = cachedOrders.length.toLocaleString();
+    const saves = cachedInventory.reduce((s,i) => s + (parseInt(i.likes)||0), 0); document.getElementById('savesCount').innerText = saves.toLocaleString();
+  });
+}
+
+setInterval(()=>{ if (document.getElementById('mainPanel').style.display === 'block') updateTrafficAnalytics(); }, 5000);
+
+</script>
+</body>
+</html><body>
 
 <!-- Login gate (phone auth) -->
 <div id="loginGate" class="login-screen">
