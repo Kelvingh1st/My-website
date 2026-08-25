@@ -13,17 +13,14 @@
                  user-scalable=no">
 
     <meta
-        name="description"
-        content="Gentlez Clothing — Premium outfits and accessories.">
-
-    <meta
         name="theme-color"
         content="#087cff">
 
     <title>Gentlez Clothing</title>
 
-    <!-- Store stylesheet -->
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css">
 
 </head>
 
@@ -35,6 +32,803 @@
      HEADER
      ===================================================== -->
 
+<header class="top-header">
+
+    <div class="brand-area">
+
+        <div class="brand-logo">
+            G
+        </div>
+
+        <div class="brand-text">
+
+            <h1>
+                Gentlez Clothing
+            </h1>
+
+            <p>
+                Premium Outfits
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="header-shop-btn"
+        onclick="scrollToProducts()">
+
+        🛍️
+        <span>Shop</span>
+
+    </button>
+
+
+    <button
+        class="header-cart-btn"
+        onclick="openCart()">
+
+        🛒
+
+        <span
+            id="cartCount"
+            class="cart-badge">
+
+            0
+
+        </span>
+
+    </button>
+
+
+    <button
+        class="header-account-btn"
+        onclick="openAccount()">
+
+        👤
+
+    </button>
+
+</header>
+
+
+
+<!-- =====================================================
+     MAIN STORE
+     ===================================================== -->
+
+<main>
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <div class="new-collection">
+
+                ✦ NEW COLLECTION
+
+            </div>
+
+
+            <h2>
+
+                Wear your
+                <span>confidence.</span>
+
+            </h2>
+
+
+            <p>
+
+                Discover premium clothing and
+                accessories carefully selected
+                for modern style.
+
+            </p>
+
+
+            <button
+                class="hero-button"
+                onclick="scrollToProducts()">
+
+                Explore Collection
+
+                <span>
+                    →
+                </span>
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- SEARCH -->
+
+    <section class="search-section">
+
+        <div class="search-box">
+
+            <span>
+                🔎
+            </span>
+
+            <input
+                id="searchInput"
+                type="search"
+                placeholder="Search products..."
+                autocomplete="off">
+
+        </div>
+
+    </section>
+
+
+
+    <!-- CATEGORIES -->
+
+    <section class="categories">
+
+        <button
+            class="category active"
+            onclick="filterCategory('all', this)">
+
+            All
+
+        </button>
+
+
+        <button
+            class="category"
+            onclick="filterCategory('shirts', this)">
+
+            👕 Shirts
+
+        </button>
+
+
+        <button
+            class="category"
+            onclick="filterCategory('hoodies', this)">
+
+            🧥 Hoodies
+
+        </button>
+
+
+        <button
+            class="category"
+            onclick="filterCategory('shoes', this)">
+
+            👟 Shoes
+
+        </button>
+
+
+        <button
+            class="category"
+            onclick="filterCategory('accessories', this)">
+
+            🧢 Accessories
+
+        </button>
+
+    </section>
+
+
+
+    <!-- COLLECTION -->
+
+    <section
+        id="productsSection"
+        class="collection-header">
+
+        <div>
+
+            <h2>
+                Latest Collection
+            </h2>
+
+            <p>
+                Fresh styles selected for you
+            </p>
+
+        </div>
+
+
+        <span id="productCount">
+            0 products
+        </span>
+
+    </section>
+
+
+
+    <!-- PRODUCT GRID -->
+
+    <section
+        id="productGrid"
+        class="product-grid">
+
+    </section>
+
+</main>
+
+
+
+<!-- =====================================================
+     CART
+     ===================================================== -->
+
+<div
+    id="cartOverlay"
+    class="overlay"
+    onclick="closeCart(event)">
+
+    <div
+        class="cart-panel"
+        onclick="event.stopPropagation()">
+
+
+        <div class="panel-header">
+
+            <h2>
+                Your Cart
+            </h2>
+
+
+            <button
+                onclick="closeCart()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="cartItems"
+            class="cart-items">
+
+        </div>
+
+
+        <div class="cart-footer">
+
+            <div class="total-row">
+
+                <span>
+                    Total
+                </span>
+
+
+                <strong id="cartTotal">
+                    GH₵0
+                </strong>
+
+            </div>
+
+
+            <button
+                class="checkout-btn"
+                onclick="checkout()">
+
+                Continue to Checkout
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     ACCOUNT
+     ===================================================== -->
+
+<div
+    id="accountOverlay"
+    class="overlay"
+    onclick="closeAccount(event)">
+
+
+    <div
+        class="account-panel"
+        onclick="event.stopPropagation()">
+
+
+        <button
+            class="close-panel"
+            onclick="closeAccount()">
+
+            ✕
+
+        </button>
+
+
+        <!-- NOT LOGGED IN -->
+
+        <div
+            id="loggedOutAccount">
+
+
+            <div class="account-icon">
+
+                👤
+
+            </div>
+
+
+            <h2>
+                Welcome
+            </h2>
+
+
+            <p>
+
+                Sign in to your Gentlez account
+                to manage your orders, profile
+                and shopping activity.
+
+            </p>
+
+
+            <button
+                class="account-action"
+                onclick="openLoginScreen()">
+
+                Login / Register
+
+            </button>
+
+        </div>
+
+
+
+        <!-- LOGGED IN -->
+
+        <div
+            id="loggedInAccount"
+            style="display:none;">
+
+
+            <div class="account-icon">
+
+                👤
+
+            </div>
+
+
+            <h2 id="accountName">
+
+                Customer
+
+            </h2>
+
+
+            <p id="accountEmail">
+
+                You are logged in.
+
+            </p>
+
+
+            <button
+                class="account-action"
+                onclick="openOrders()">
+
+                📦 My Orders
+
+            </button>
+
+
+            <br><br>
+
+
+            <button
+                class="account-action"
+                onclick="logoutCustomer()">
+
+                🚪 Logout
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     CUSTOMER LOGIN / REGISTER
+     ===================================================== -->
+
+<div
+    id="authOverlay"
+    class="overlay"
+    onclick="closeAuth(event)">
+
+
+    <div
+        class="auth-panel"
+        onclick="event.stopPropagation()">
+
+
+        <button
+            class="close-panel"
+            onclick="closeAuth()">
+
+            ✕
+
+        </button>
+
+
+        <div class="auth-logo">
+
+            G
+
+        </div>
+
+
+        <h2 id="authTitle">
+
+            Create Account
+
+        </h2>
+
+
+        <p id="authSubtitle">
+
+            Join Gentlez Clothing
+
+        </p>
+
+
+
+        <!-- REGISTER -->
+
+        <form
+            id="registerForm"
+            onsubmit="registerCustomer(event)">
+
+
+            <div
+                class="auth-field"
+                id="nameField">
+
+                <label>
+                    Full Name
+                </label>
+
+                <input
+                    id="registerName"
+                    type="text"
+                    placeholder="Your name"
+                    autocomplete="name"
+                    required>
+
+            </div>
+
+
+            <div class="auth-field">
+
+                <label>
+                    Email
+                </label>
+
+                <input
+                    id="registerEmail"
+                    type="email"
+                    placeholder="you@example.com"
+                    autocomplete="email"
+                    required>
+
+            </div>
+
+
+            <div class="auth-field">
+
+                <label>
+                    Phone Number
+                </label>
+
+                <input
+                    id="registerPhone"
+                    type="tel"
+                    placeholder="+233XXXXXXXXX"
+                    autocomplete="tel"
+                    required>
+
+            </div>
+
+
+            <div class="auth-field">
+
+                <label>
+                    Password
+                </label>
+
+                <input
+                    id="registerPassword"
+                    type="password"
+                    placeholder="Create a password"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required>
+
+            </div>
+
+
+            <button
+                class="auth-submit"
+                type="submit">
+
+                Create Account
+
+            </button>
+
+        </form>
+
+
+
+        <!-- LOGIN -->
+
+        <form
+            id="loginForm"
+            style="display:none;"
+            onsubmit="loginCustomer(event)">
+
+
+            <div class="auth-field">
+
+                <label>
+                    Email
+                </label>
+
+                <input
+                    id="loginEmail"
+                    type="email"
+                    placeholder="you@example.com"
+                    autocomplete="email"
+                    required>
+
+            </div>
+
+
+            <div class="auth-field">
+
+                <label>
+                    Password
+                </label>
+
+                <input
+                    id="loginPassword"
+                    type="password"
+                    placeholder="Your password"
+                    autocomplete="current-password"
+                    required>
+
+            </div>
+
+
+            <button
+                class="auth-submit"
+                type="submit">
+
+                Login
+
+            </button>
+
+
+            <button
+                type="button"
+                class="forgot-password-btn"
+                onclick="resetCustomerPassword()">
+
+                Forgot password?
+
+            </button>
+
+        </form>
+
+
+
+        <!-- AUTH ERROR -->
+
+        <div
+            id="authMessage"
+            class="auth-message">
+
+        </div>
+
+
+
+        <!-- SWITCH LOGIN / REGISTER -->
+
+        <div class="auth-switch">
+
+            <span id="authSwitchText">
+
+                Already have an account?
+
+            </span>
+
+
+            <button
+                id="authSwitchButton"
+                onclick="showLogin()">
+
+                Login
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     ORDERS
+     ===================================================== -->
+
+<div
+    id="ordersOverlay"
+    class="overlay"
+    onclick="closeOrders(event)">
+
+
+    <div
+        class="orders-panel"
+        onclick="event.stopPropagation()">
+
+
+        <div class="panel-header">
+
+            <h2>
+                My Orders
+            </h2>
+
+
+            <button
+                onclick="closeOrders()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="ordersList"
+            class="orders-list">
+
+            <div class="empty-orders">
+
+                📦
+
+                <p>
+                    No orders yet.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     TOAST
+     ===================================================== -->
+
+<div
+    id="toast"
+    class="toast">
+
+</div>
+
+
+
+<!-- =====================================================
+     BOTTOM NAVIGATION
+     ===================================================== -->
+
+<nav class="bottom-nav">
+
+
+    <button
+        id="shopNav"
+        class="bottom-item active"
+        onclick="scrollToProducts()">
+
+        <span>
+            🛍️
+        </span>
+
+        <small>
+            Shop
+        </small>
+
+    </button>
+
+
+    <button
+        id="cartNav"
+        class="bottom-item"
+        onclick="openCart()">
+
+        <span>
+            🛒
+        </span>
+
+        <small>
+            Cart
+        </small>
+
+    </button>
+
+
+    <button
+        id="accountNav"
+        class="bottom-item"
+        onclick="openAccount()">
+
+        <span>
+            👤
+        </span>
+
+        <small>
+            Account
+        </small>
+
+    </button>
+
+</nav>
+
+
+
+<!-- =====================================================
+     FIREBASE
+     ===================================================== -->
+
+<script
+    type="module"
+    src="firebaseConfig.js">
+</script>
+
+
+<!-- =====================================================
+     APPLICATION
+     ===================================================== -->
+
+<script
+    type="module"
+    src="app.js">
+</script>
+
+
+</body>
+
+    </html>
 <header class="top-header">
 
     <div class="brand-area">
