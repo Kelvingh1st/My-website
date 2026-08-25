@@ -4,7 +4,497 @@
    app.js
    ===================================================== */
 
+import {
+    auth,
+    database
+} from "./firebaseConfig.js";
 
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut,
+    updateProfile
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+import {
+    ref,
+    set,
+    get
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+/* =====================================================
+   CUSTOMER AUTHENTICATION
+   ===================================================== */
+
+let authMode = "login";
+
+
+const loginForm =
+    document.getElementById("loginForm");
+
+const registerForm =
+    document.getElementById("registerForm");
+
+const authTitle =
+    document.getElementById("authTitle");
+
+const authSubtitle =
+    document.getElementById("authSubtitle");
+
+const authSwitchText =
+    document.getElementById("authSwitchText");
+
+const authSwitchButton =
+    document.getElementById("authSwitchButton");
+
+const loggedInPanel =
+    document.getElementById("loggedInPanel");
+
+const customerName =
+    document.getElementById("customerName");
+
+const customerPhone =
+    document.getElementById("customerPhone");
+
+
+/* ================= SWITCH LOGIN / REGISTER ================= */
+
+function switchAuthMode() {
+
+    if (authMode === "login") {
+
+        authMode = "register";
+
+        loginForm.style.display = "none";
+        registerForm.style.display = "flex";
+
+        authTitle.textContent =
+            "Create Account";
+
+        authSubtitle.textContent =
+            "Join Gentlez Clothing today.";
+
+        authSwitchText.textContent =
+            "Already have an account?";
+
+        authSwitchButton.textContent =
+            "Login";
+
+    } else {
+
+        authMode = "login";
+
+        loginForm.style.display = "flex";
+        registerForm.style.display = "none";
+
+        authTitle.textContent =
+            "Welcome Back";
+
+        authSubtitle.textContent =
+            "Login to your Gentlez Clothing account.";
+
+        authSwitchText.textContent =
+            "Don't have an account?";
+
+        authSwitchButton.textContent =
+            "Create Account";
+
+    }
+
+}
+
+
+/* ================= REGISTER ================= */
+
+registerForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const name =
+            document
+                .getElementById("registerName")
+                .value
+                .trim();
+
+        const email =
+            document
+                .getElementById("registerEmail")
+                .value
+                .trim();
+
+        const phone =
+            document
+                .getElementById("registerPhone")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("registerPassword")
+                .value;
+
+        const password2 =
+            document
+                .getElementById("registerPassword2")
+                .value;
+
+
+        if (password !== password2) {
+
+            showToast(
+                "Passwords do not match"
+            );
+
+            return;
+
+        }
+
+
+        if (!phone) {
+
+            showToast(
+                "Phone number is required"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            showToast(
+                "Creating account..."
+            );
+
+
+            /*
+             * Firebase handles the password.
+             * We NEVER save the password
+             * inside Realtime Database.
+             */
+
+            const credential =
+                await createUserWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+
+            const user =
+                credential.user;
+
+
+            /*
+             * Set Firebase Auth display name.
+             */
+
+            await updateProfile(
+                user,
+                {
+                    displayName: name
+                }
+            );
+
+
+            /*
+             * Save customer profile.
+             */
+
+            await set(
+                ref(
+                    database,
+                    `users/${user.uid}`
+                ),
+                {
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    role: "customer",
+                    createdAt:
+                        Date.now()
+                }
+            );
+
+
+            showToast(
+                "Account created successfully 🎉"
+            );
+
+
+            registerForm.reset();
+
+
+            updateCustomerUI(user);
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                firebaseAuthError(error)
+            );
+
+        }
+
+    }
+);
+
+
+/* ================= LOGIN ================= */
+
+loginForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const email =
+            document
+                .getElementById("loginEmail")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("loginPassword")
+                .value;
+
+
+        try {
+
+            showToast(
+                "Logging in..."
+            );
+
+
+            const credential =
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+
+            loginForm.reset();
+
+
+            updateCustomerUI(
+                credential.user
+            );
+
+
+            showToast(
+                "Welcome back 👋"
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                firebaseAuthError(error)
+            );
+
+        }
+
+    }
+);
+
+
+/* ================= AUTH STATE ================= */
+
+onAuthStateChanged(
+    auth,
+    async function(user) {
+
+        if (user) {
+
+            updateCustomerUI(user);
+
+        } else {
+
+            showLoggedOutUI();
+
+        }
+
+    }
+);
+
+
+/* ================= CUSTOMER UI ================= */
+
+async function updateCustomerUI(user) {
+
+    loginForm.style.display =
+        "none";
+
+    registerForm.style.display =
+        "none";
+
+    loggedInPanel.style.display =
+        "block";
+
+    authTitle.textContent =
+        "Your Account";
+
+    authSubtitle.textContent =
+        "You are signed in.";
+
+    authSwitchText.style.display =
+        "none";
+
+    authSwitchButton.style.display =
+        "none";
+
+
+    customerName.textContent =
+        user.displayName ||
+        "Customer";
+
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    `users/${user.uid}`
+                )
+            );
+
+
+        if (snapshot.exists()) {
+
+            const data =
+                snapshot.val();
+
+
+            customerName.textContent =
+                data.name ||
+                user.displayName ||
+                "Customer";
+
+
+            customerPhone.textContent =
+                data.phone ||
+                "Phone not available";
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Could not load customer profile:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ================= LOGGED OUT UI ================= */
+
+function showLoggedOutUI() {
+
+    authMode = "login";
+
+    loginForm.style.display =
+        "flex";
+
+    registerForm.style.display =
+        "none";
+
+    loggedInPanel.style.display =
+        "none";
+
+    authTitle.textContent =
+        "Welcome Back";
+
+    authSubtitle.textContent =
+        "Login to your Gentlez Clothing account.";
+
+    authSwitchText.style.display =
+        "inline";
+
+    authSwitchButton.style.display =
+        "inline";
+
+    authSwitchText.textContent =
+        "Don't have an account?";
+
+    authSwitchButton.textContent =
+        "Create Account";
+
+}
+
+
+/* ================= LOGOUT ================= */
+
+async function logoutCustomer() {
+
+    try {
+
+        await signOut(auth);
+
+        showToast(
+            "Logged out successfully"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Could not log out"
+        );
+
+    }
+
+}
+
+
+/* ================= FIREBASE ERRORS ================= */
+
+function firebaseAuthError(error) {
+
+    switch (error.code) {
+
+        case "auth/email-already-in-use":
+            return "This email is already registered.";
+
+        case "auth/invalid-email":
+            return "Please enter a valid email.";
+
+        case "auth/weak-password":
+            return "Password must be at least 6 characters.";
+
+        case "auth/invalid-credential":
+            return "Incorrect email or password.";
+
+        case "auth/user-not-found":
+            return "Account not found.";
+
+        case "auth/wrong-password":
+            return "Incorrect password.";
+
+        case "auth/too-many-requests":
+            return "Too many attempts. Try again later.";
+
+        default:
+            return "Authentication failed. Please try again.";
+
+    }
+}
 /* =====================================================
    PRODUCTS
    ===================================================== */
