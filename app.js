@@ -35,1903 +35,6 @@ const products = [
         name: "Premium T-Shirt",
         category: "shirts",
         description: "Premium everyday cotton wear.",
-        price: 120,
-        icon: "👕",
-        tag: "NEW"
-    },
-
-    {
-        id: 2,
-        name: "Classic Hoodie",
-        category: "hoodies",
-        description: "Soft modern everyday hoodie.",
-        price: 220,
-        icon: "🧥",
-        tag: "POPULAR"
-    },
-
-    {
-        id: 3,
-        name: "Urban Sneakers",
-        category: "shoes",
-        description: "Clean modern street sneakers.",
-        price: 350,
-        icon: "👟",
-        tag: "NEW"
-    },
-
-    {
-        id: 4,
-        name: "Premium Cap",
-        category: "accessories",
-        description: "Minimal premium finish.",
-        price: 80,
-        icon: "🧢",
-        tag: "HOT"
-    },
-
-    {
-        id: 5,
-        name: "Classic Jeans",
-        category: "shirts",
-        description: "Comfortable modern fit.",
-        price: 190,
-        icon: "👖",
-        tag: "NEW"
-    },
-
-    {
-        id: 6,
-        name: "Street Jacket",
-        category: "hoodies",
-        description: "Premium street-style jacket.",
-        price: 280,
-        icon: "🧥",
-        tag: "HOT"
-    }
-
-];
-
-
-// =====================================================
-// STATE
-// =====================================================
-
-let cart = [];
-
-let currentCategory = "all";
-
-let authMode = "login";
-
-let recaptchaVerifier = null;
-
-
-// =====================================================
-// ELEMENTS
-// =====================================================
-
-const productGrid =
-    document.getElementById("productGrid");
-
-const productCount =
-    document.getElementById("productCount");
-
-const searchInput =
-    document.getElementById("searchInput");
-
-const cartCount =
-    document.getElementById("cartCount");
-
-const cartItems =
-    document.getElementById("cartItems");
-
-const cartTotal =
-    document.getElementById("cartTotal");
-
-const toast =
-    document.getElementById("toast");
-
-
-// =====================================================
-// DISPLAY PRODUCTS
-// =====================================================
-
-function displayProducts() {
-
-    const search =
-        searchInput.value
-            .toLowerCase()
-            .trim();
-
-
-    const filtered =
-        products.filter(product => {
-
-            const matchesCategory =
-                currentCategory === "all" ||
-                product.category === currentCategory;
-
-
-            const matchesSearch =
-                product.name
-                    .toLowerCase()
-                    .includes(search);
-
-
-            return (
-                matchesCategory &&
-                matchesSearch
-            );
-
-        });
-
-
-    productGrid.innerHTML = "";
-
-
-    productCount.textContent =
-        `${filtered.length} products`;
-
-
-    filtered.forEach(product => {
-
-        const card =
-            document.createElement("article");
-
-
-        card.className =
-            "product-card";
-
-
-        card.onclick = () =>
-            openProduct(product.id);
-
-
-        card.innerHTML = `
-
-            <div class="product-image">
-
-                <span class="product-tag">
-                    ${product.tag}
-                </span>
-
-                ${product.icon}
-
-            </div>
-
-            <div class="product-info">
-
-                <div class="product-name">
-                    ${product.name}
-                </div>
-
-                <div class="product-description">
-                    ${product.description}
-                </div>
-
-                <div class="product-bottom">
-
-                    <span class="product-price">
-                        GH₵${product.price}
-                    </span>
-
-                    <button
-                        class="add-button"
-                        onclick="
-                            event.stopPropagation();
-                            addToCart(${product.id});
-                        ">
-
-                        +
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        `;
-
-
-        productGrid.appendChild(card);
-
-    });
-
-}
-
-
-// =====================================================
-// SEARCH
-// =====================================================
-
-searchInput.addEventListener(
-    "input",
-    displayProducts
-);
-
-
-// =====================================================
-// CATEGORY
-// =====================================================
-
-function filterCategory(category, button) {
-
-    currentCategory =
-        category;
-
-
-    document
-        .querySelectorAll(".category")
-        .forEach(item => {
-
-            item.classList.remove(
-                "active"
-            );
-
-        });
-
-
-    button.classList.add(
-        "active"
-    );
-
-
-    displayProducts();
-
-}
-
-
-// =====================================================
-// PRODUCT DETAILS
-// =====================================================
-
-function openProduct(id) {
-
-    const product =
-        products.find(
-            item => item.id === id
-        );
-
-
-    if (!product) return;
-
-
-    showToast(
-        `${product.name} selected`
-    );
-
-}
-
-
-// =====================================================
-// CART
-// =====================================================
-
-function addToCart(id) {
-
-    const product =
-        products.find(
-            item => item.id === id
-        );
-
-
-    if (!product) return;
-
-
-    cart.push(product);
-
-
-    updateCart();
-
-
-    showToast(
-        `${product.name} added 🛒`
-    );
-
-}
-
-
-function removeFromCart(index) {
-
-    cart.splice(
-        index,
-        1
-    );
-
-
-    updateCart();
-
-
-    showToast(
-        "Item removed"
-    );
-
-}
-
-
-function updateCart() {
-
-    cartCount.textContent =
-        cart.length;
-
-
-    cartItems.innerHTML = "";
-
-
-    if (cart.length === 0) {
-
-        cartItems.innerHTML = `
-
-            <div style="
-                text-align:center;
-                padding:35px 10px;
-                color:#718096;
-            ">
-
-                <div style="
-                    font-size:45px;
-                    margin-bottom:10px;
-                ">
-                    🛒
-                </div>
-
-                <strong>
-                    Your cart is empty
-                </strong>
-
-                <p style="
-                    font-size:12px;
-                    margin-top:5px;
-                ">
-                    Add something you love.
-                </p>
-
-            </div>
-
-        `;
-
-
-        cartTotal.textContent =
-            "GH₵0";
-
-
-        return;
-
-    }
-
-
-    let total = 0;
-
-
-    cart.forEach(
-        (product, index) => {
-
-            total +=
-                product.price;
-
-
-            const item =
-                document.createElement(
-                    "div"
-                );
-
-
-            item.className =
-                "cart-item";
-
-
-            item.innerHTML = `
-
-                <div class="cart-item-icon">
-                    ${product.icon}
-                </div>
-
-                <div class="cart-item-info">
-
-                    <strong>
-                        ${product.name}
-                    </strong>
-
-                    <span>
-                        GH₵${product.price}
-                    </span>
-
-                </div>
-
-                <button
-                    onclick="
-                        removeFromCart(${index})
-                    "
-                    style="
-                        border:none;
-                        background:none;
-                        font-size:16px;
-                        cursor:pointer;
-                    ">
-
-                    🗑️
-
-                </button>
-
-            `;
-
-
-            cartItems.appendChild(
-                item
-            );
-
-        }
-    );
-
-
-    cartTotal.textContent =
-        `GH₵${total}`;
-
-}
-
-
-// =====================================================
-// CART PANEL
-// =====================================================
-
-function openCart() {
-
-    document
-        .getElementById(
-            "cartOverlay"
-        )
-        .classList.add("show");
-
-
-    setBottomActive(
-        "cartNav"
-    );
-
-}
-
-
-function closeCart(event) {
-
-    if (
-        event &&
-        event.target !==
-        event.currentTarget
-    ) {
-
-        return;
-
-    }
-
-
-    document
-        .getElementById(
-            "cartOverlay"
-        )
-        .classList.remove(
-            "show"
-        );
-
-}
-
-
-// =====================================================
-// ACCOUNT PANEL
-// =====================================================
-
-function openAccount() {
-
-    document
-        .getElementById(
-            "accountOverlay"
-        )
-        .classList.add(
-            "show"
-        );
-
-
-    setBottomActive(
-        "accountNav"
-    );
-
-}
-
-
-function closeAccount(event) {
-
-    if (
-        event &&
-        event.target !==
-        event.currentTarget
-    ) {
-
-        return;
-
-    }
-
-
-    document
-        .getElementById(
-            "accountOverlay"
-        )
-        .classList.remove(
-            "show"
-        );
-
-}
-
-
-// =====================================================
-// SHOP
-// =====================================================
-
-function scrollToProducts() {
-
-    setBottomActive(
-        "shopNav"
-    );
-
-
-    document
-        .getElementById(
-            "productsSection"
-        )
-        .scrollIntoView({
-            behavior: "smooth"
-        });
-
-}
-
-
-// =====================================================
-// BOTTOM NAV
-// =====================================================
-
-function setBottomActive(id) {
-
-    document
-        .querySelectorAll(
-            ".bottom-item"
-        )
-        .forEach(item => {
-
-            item.classList.remove(
-                "active"
-            );
-
-        });
-
-
-    const target =
-        document.getElementById(id);
-
-
-    if (target) {
-
-        target.classList.add(
-            "active"
-        );
-
-    }
-
-}
-
-
-// =====================================================
-// CHECKOUT
-// =====================================================
-
-function checkout() {
-
-    if (cart.length === 0) {
-
-        showToast(
-            "Your cart is empty"
-        );
-
-        return;
-
-    }
-
-
-    const user =
-        auth.currentUser;
-
-
-    if (!user) {
-
-        showToast(
-            "Please login before checkout"
-        );
-
-
-        openAccount();
-
-
-        return;
-
-    }
-
-
-    showToast(
-        "Checkout system coming next 💳"
-    );
-
-}
-
-
-// =====================================================
-// AUTH MODE
-// =====================================================
-
-function switchAuthMode() {
-
-    const loginForm =
-        document.getElementById(
-            "loginForm"
-        );
-
-    const registerForm =
-        document.getElementById(
-            "registerForm"
-        );
-
-    const title =
-        document.getElementById(
-            "authTitle"
-        );
-
-    const subtitle =
-        document.getElementById(
-            "authSubtitle"
-        );
-
-    const switchText =
-        document.getElementById(
-            "authSwitchText"
-        );
-
-    const switchButton =
-        document.getElementById(
-            "authSwitchButton"
-        );
-
-
-    if (
-        !loginForm ||
-        !registerForm
-    ) {
-
-        return;
-
-    }
-
-
-    if (authMode === "login") {
-
-        authMode =
-            "register";
-
-
-        loginForm.style.display =
-            "none";
-
-        registerForm.style.display =
-            "flex";
-
-
-        title.textContent =
-            "Create Account";
-
-        subtitle.textContent =
-            "Join Gentlez Clothing today.";
-
-        switchText.textContent =
-            "Already have an account?";
-
-        switchButton.textContent =
-            "Login";
-
-    } else {
-
-        authMode =
-            "login";
-
-
-        loginForm.style.display =
-            "flex";
-
-        registerForm.style.display =
-            "none";
-
-
-        title.textContent =
-            "Welcome Back";
-
-        subtitle.textContent =
-            "Login to your Gentlez Clothing account.";
-
-        switchText.textContent =
-            "Don't have an account?";
-
-        switchButton.textContent =
-            "Create Account";
-
-    }
-
-}
-
-
-// =====================================================
-// FIREBASE LOGIN
-// =====================================================
-
-const loginForm =
-    document.getElementById(
-        "loginForm"
-    );
-
-
-if (loginForm) {
-
-    loginForm.addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-
-            const email =
-                document
-                    .getElementById(
-                        "loginEmail"
-                    )
-                    .value
-                    .trim();
-
-
-            const password =
-                document
-                    .getElementById(
-                        "loginPassword"
-                    )
-                    .value;
-
-
-            try {
-
-                showToast(
-                    "Logging in..."
-                );
-
-
-                await signInWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
-
-
-                loginForm.reset();
-
-
-                showToast(
-                    "Welcome back 👋"
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                showToast(
-                    firebaseAuthError(
-                        error
-                    )
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-// =====================================================
-// FIREBASE REGISTRATION
-// =====================================================
-
-const registerForm =
-    document.getElementById(
-        "registerForm"
-    );
-
-
-if (registerForm) {
-
-    registerForm.addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-
-            const name =
-                document
-                    .getElementById(
-                        "registerName"
-                    )
-                    .value
-                    .trim();
-
-
-            const email =
-                document
-                    .getElementById(
-                        "registerEmail"
-                    )
-                    .value
-                    .trim();
-
-
-            const phone =
-                document
-                    .getElementById(
-                        "registerPhone"
-                    )
-                    .value
-                    .trim();
-
-
-            const password =
-                document
-                    .getElementById(
-                        "registerPassword"
-                    )
-                    .value;
-
-
-            const password2 =
-                document
-                    .getElementById(
-                        "registerPassword2"
-                    )
-                    .value;
-
-
-            if (
-                !name ||
-                !email ||
-                !phone ||
-                !password
-            ) {
-
-                showToast(
-                    "Please complete all fields"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                password !==
-                password2
-            ) {
-
-                showToast(
-                    "Passwords do not match"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                password.length < 6
-            ) {
-
-                showToast(
-                    "Password must be at least 6 characters"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                showToast(
-                    "Creating account..."
-                );
-
-
-                /*
-                 * Firebase Authentication
-                 * securely handles the password.
-                 */
-
-                const credential =
-                    await createUserWithEmailAndPassword(
-                        auth,
-                        email,
-                        password
-                    );
-
-
-                const user =
-                    credential.user;
-
-
-                await updateProfile(
-                    user,
-                    {
-                        displayName:
-                            name
-                    }
-                );
-
-
-                /*
-                 * Store profile information.
-                 *
-                 * NEVER store the password here.
-                 */
-
-                await set(
-                    ref(
-                        database,
-                        `users/${user.uid}`
-                    ),
-                    {
-                        name:
-                            name,
-
-                        phone:
-                            phone,
-
-                        email:
-                            email,
-
-                        role:
-                            "customer",
-
-                        createdAt:
-                            Date.now()
-                    }
-                );
-
-
-                registerForm.reset();
-
-
-                showToast(
-                    "Account created 🎉"
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                showToast(
-                    firebaseAuthError(
-                        error
-                    )
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-// =====================================================
-// AUTH STATE
-// =====================================================
-
-onAuthStateChanged(
-    auth,
-    async user => {
-
-        if (user) {
-
-            await updateCustomerUI(
-                user
-            );
-
-        } else {
-
-            showLoggedOutUI();
-
-        }
-
-    }
-);
-
-
-// =====================================================
-// CUSTOMER UI
-// =====================================================
-
-async function updateCustomerUI(user) {
-
-    const loginForm =
-        document.getElementById(
-            "loginForm"
-        );
-
-    const registerForm =
-        document.getElementById(
-            "registerForm"
-        );
-
-    const loggedInPanel =
-        document.getElementById(
-            "loggedInPanel"
-        );
-
-    const title =
-        document.getElementById(
-            "authTitle"
-        );
-
-    const subtitle =
-        document.getElementById(
-            "authSubtitle"
-        );
-
-    const switchText =
-        document.getElementById(
-            "authSwitchText"
-        );
-
-    const switchButton =
-        document.getElementById(
-            "authSwitchButton"
-        );
-
-    const customerName =
-        document.getElementById(
-            "customerName"
-        );
-
-    const customerPhone =
-        document.getElementById(
-            "customerPhone"
-        );
-
-
-    if (loginForm)
-        loginForm.style.display =
-            "none";
-
-
-    if (registerForm)
-        registerForm.style.display =
-            "none";
-
-
-    if (loggedInPanel)
-        loggedInPanel.style.display =
-            "block";
-
-
-    if (title)
-        title.textContent =
-            "Your Account";
-
-
-    if (subtitle)
-        subtitle.textContent =
-            "You are signed in.";
-
-
-    if (switchText)
-        switchText.style.display =
-            "none";
-
-
-    if (switchButton)
-        switchButton.style.display =
-            "none";
-
-
-    if (customerName)
-        customerName.textContent =
-            user.displayName ||
-            "Customer";
-
-
-    try {
-
-        const snapshot =
-            await get(
-                ref(
-                    database,
-                    `users/${user.uid}`
-                )
-            );
-
-
-        if (
-            snapshot.exists()
-        ) {
-
-            const data =
-                snapshot.val();
-
-
-            if (customerName) {
-
-                customerName.textContent =
-                    data.name ||
-                    user.displayName ||
-                    "Customer";
-
-            }
-
-
-            if (customerPhone) {
-
-                customerPhone.textContent =
-                    data.phone ||
-                    "Phone not available";
-
-            }
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Profile error:",
-            error
-        );
-
-    }
-
-}
-
-
-// =====================================================
-// LOGGED OUT UI
-// =====================================================
-
-function showLoggedOutUI() {
-
-    const loginForm =
-        document.getElementById(
-            "loginForm"
-        );
-
-    const registerForm =
-        document.getElementById(
-            "registerForm"
-        );
-
-    const loggedInPanel =
-        document.getElementById(
-            "loggedInPanel"
-        );
-
-    const title =
-        document.getElementById(
-            "authTitle"
-        );
-
-    const subtitle =
-        document.getElementById(
-            "authSubtitle"
-        );
-
-    const switchText =
-        document.getElementById(
-            "authSwitchText"
-        );
-
-    const switchButton =
-        document.getElementById(
-            "authSwitchButton"
-        );
-
-
-    if (loginForm)
-        loginForm.style.display =
-            "flex";
-
-
-    if (registerForm)
-        registerForm.style.display =
-            "none";
-
-
-    if (loggedInPanel)
-        loggedInPanel.style.display =
-            "none";
-
-
-    if (title)
-        title.textContent =
-            "Welcome Back";
-
-
-    if (subtitle)
-        subtitle.textContent =
-            "Login to your Gentlez Clothing account.";
-
-
-    if (switchText) {
-
-        switchText.style.display =
-            "inline";
-
-        switchText.textContent =
-            "Don't have an account?";
-
-    }
-
-
-    if (switchButton) {
-
-        switchButton.style.display =
-            "inline";
-
-        switchButton.textContent =
-            "Create Account";
-
-    }
-
-}
-
-
-// =====================================================
-// LOGOUT
-// =====================================================
-
-async function logoutCustomer() {
-
-    try {
-
-        await signOut(
-            auth
-        );
-
-
-        showToast(
-            "Logged out successfully"
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            error
-        );
-
-
-        showToast(
-            "Could not log out"
-        );
-
-    }
-
-}
-
-
-// =====================================================
-// FIREBASE ERROR MESSAGES
-// =====================================================
-
-function firebaseAuthError(error) {
-
-    switch (error.code) {
-
-        case "auth/email-already-in-use":
-
-            return "This email is already registered.";
-
-        case "auth/invalid-email":
-
-            return "Please enter a valid email.";
-
-        case "auth/weak-password":
-
-            return "Password must be at least 6 characters.";
-
-        case "auth/invalid-credential":
-
-            return "Incorrect email or password.";
-
-        case "auth/user-not-found":
-
-            return "Account not found.";
-
-        case "auth/wrong-password":
-
-            return "Incorrect password.";
-
-        case "auth/too-many-requests":
-
-            return "Too many attempts. Try again later.";
-
-        default:
-
-            return "Authentication failed. Please try again.";
-
-    }
-
-}
-
-
-// =====================================================
-// TOAST
-// =====================================================
-
-let toastTimer;
-
-
-function showToast(message) {
-
-    if (!toast) return;
-
-
-    toast.textContent =
-        message;
-
-
-    toast.classList.add(
-        "show"
-    );
-
-
-    clearTimeout(
-        toastTimer
-    );
-
-
-    toastTimer =
-        setTimeout(
-            () => {
-
-                toast.classList.remove(
-                    "show"
-                );
-
-            },
-            2500
-        );
-
-}
-
-
-// =====================================================
-// MAKE HTML onclick FUNCTIONS GLOBAL
-// =====================================================
-
-window.filterCategory =
-    filterCategory;
-
-window.addToCart =
-    addToCart;
-
-window.removeFromCart =
-    removeFromCart;
-
-window.openCart =
-    openCart;
-
-window.closeCart =
-    closeCart;
-
-window.openAccount =
-    openAccount;
-
-window.closeAccount =
-    closeAccount;
-
-window.scrollToProducts =
-    scrollToProducts;
-
-window.checkout =
-    checkout;
-
-window.switchAuthMode =
-    switchAuthMode;
-
-window.logoutCustomer =
-    logoutCustomer;
-
-
-// =====================================================
-// START
-// =====================================================
-
-displayProducts();
-
-updateCart();    document.getElementById("registerForm");
-
-const authTitle =
-    document.getElementById("authTitle");
-
-const authSubtitle =
-    document.getElementById("authSubtitle");
-
-const authSwitchText =
-    document.getElementById("authSwitchText");
-
-const authSwitchButton =
-    document.getElementById("authSwitchButton");
-
-const loggedInPanel =
-    document.getElementById("loggedInPanel");
-
-const customerName =
-    document.getElementById("customerName");
-
-const customerPhone =
-    document.getElementById("customerPhone");
-
-
-/* ================= SWITCH LOGIN / REGISTER ================= */
-
-function switchAuthMode() {
-
-    if (authMode === "login") {
-
-        authMode = "register";
-
-        loginForm.style.display = "none";
-        registerForm.style.display = "flex";
-
-        authTitle.textContent =
-            "Create Account";
-
-        authSubtitle.textContent =
-            "Join Gentlez Clothing today.";
-
-        authSwitchText.textContent =
-            "Already have an account?";
-
-        authSwitchButton.textContent =
-            "Login";
-
-    } else {
-
-        authMode = "login";
-
-        loginForm.style.display = "flex";
-        registerForm.style.display = "none";
-
-        authTitle.textContent =
-            "Welcome Back";
-
-        authSubtitle.textContent =
-            "Login to your Gentlez Clothing account.";
-
-        authSwitchText.textContent =
-            "Don't have an account?";
-
-        authSwitchButton.textContent =
-            "Create Account";
-
-    }
-
-}
-
-
-/* ================= REGISTER ================= */
-
-registerForm.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        const name =
-            document
-                .getElementById("registerName")
-                .value
-                .trim();
-
-        const email =
-            document
-                .getElementById("registerEmail")
-                .value
-                .trim();
-
-        const phone =
-            document
-                .getElementById("registerPhone")
-                .value
-                .trim();
-
-        const password =
-            document
-                .getElementById("registerPassword")
-                .value;
-
-        const password2 =
-            document
-                .getElementById("registerPassword2")
-                .value;
-
-
-        if (password !== password2) {
-
-            showToast(
-                "Passwords do not match"
-            );
-
-            return;
-
-        }
-
-
-        if (!phone) {
-
-            showToast(
-                "Phone number is required"
-            );
-
-            return;
-
-        }
-
-
-        try {
-
-            showToast(
-                "Creating account..."
-            );
-
-
-            /*
-             * Firebase handles the password.
-             * We NEVER save the password
-             * inside Realtime Database.
-             */
-
-            const credential =
-                await createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
-
-
-            const user =
-                credential.user;
-
-
-            /*
-             * Set Firebase Auth display name.
-             */
-
-            await updateProfile(
-                user,
-                {
-                    displayName: name
-                }
-            );
-
-
-            /*
-             * Save customer profile.
-             */
-
-            await set(
-                ref(
-                    database,
-                    `users/${user.uid}`
-                ),
-                {
-                    name: name,
-                    phone: phone,
-                    email: email,
-                    role: "customer",
-                    createdAt:
-                        Date.now()
-                }
-            );
-
-
-            showToast(
-                "Account created successfully 🎉"
-            );
-
-
-            registerForm.reset();
-
-
-            updateCustomerUI(user);
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                firebaseAuthError(error)
-            );
-
-        }
-
-    }
-);
-
-
-/* ================= LOGIN ================= */
-
-loginForm.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        const email =
-            document
-                .getElementById("loginEmail")
-                .value
-                .trim();
-
-        const password =
-            document
-                .getElementById("loginPassword")
-                .value;
-
-
-        try {
-
-            showToast(
-                "Logging in..."
-            );
-
-
-            const credential =
-                await signInWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
-
-
-            loginForm.reset();
-
-
-            updateCustomerUI(
-                credential.user
-            );
-
-
-            showToast(
-                "Welcome back 👋"
-            );
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                firebaseAuthError(error)
-            );
-
-        }
-
-    }
-);
-
-
-/* ================= AUTH STATE ================= */
-
-onAuthStateChanged(
-    auth,
-    async function(user) {
-
-        if (user) {
-
-            updateCustomerUI(user);
-
-        } else {
-
-            showLoggedOutUI();
-
-        }
-
-    }
-);
-
-
-/* ================= CUSTOMER UI ================= */
-
-async function updateCustomerUI(user) {
-
-    loginForm.style.display =
-        "none";
-
-    registerForm.style.display =
-        "none";
-
-    loggedInPanel.style.display =
-        "block";
-
-    authTitle.textContent =
-        "Your Account";
-
-    authSubtitle.textContent =
-        "You are signed in.";
-
-    authSwitchText.style.display =
-        "none";
-
-    authSwitchButton.style.display =
-        "none";
-
-
-    customerName.textContent =
-        user.displayName ||
-        "Customer";
-
-
-    try {
-
-        const snapshot =
-            await get(
-                ref(
-                    database,
-                    `users/${user.uid}`
-                )
-            );
-
-
-        if (snapshot.exists()) {
-
-            const data =
-                snapshot.val();
-
-
-            customerName.textContent =
-                data.name ||
-                user.displayName ||
-                "Customer";
-
-
-            customerPhone.textContent =
-                data.phone ||
-                "Phone not available";
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Could not load customer profile:",
-            error
-        );
-
-    }
-
-}
-
-
-/* ================= LOGGED OUT UI ================= */
-
-function showLoggedOutUI() {
-
-    authMode = "login";
-
-    loginForm.style.display =
-        "flex";
-
-    registerForm.style.display =
-        "none";
-
-    loggedInPanel.style.display =
-        "none";
-
-    authTitle.textContent =
-        "Welcome Back";
-
-    authSubtitle.textContent =
-        "Login to your Gentlez Clothing account.";
-
-    authSwitchText.style.display =
-        "inline";
-
-    authSwitchButton.style.display =
-        "inline";
-
-    authSwitchText.textContent =
-        "Don't have an account?";
-
-    authSwitchButton.textContent =
-        "Create Account";
-
-}
-
-
-/* ================= LOGOUT ================= */
-
-async function logoutCustomer() {
-
-    try {
-
-        await signOut(auth);
-
-        showToast(
-            "Logged out successfully"
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "Could not log out"
-        );
-
-    }
-
-}
-
-
-/* ================= FIREBASE ERRORS ================= */
-
-function firebaseAuthError(error) {
-
-    switch (error.code) {
-
-        case "auth/email-already-in-use":
-            return "This email is already registered.";
-
-        case "auth/invalid-email":
-            return "Please enter a valid email.";
-
-        case "auth/weak-password":
-            return "Password must be at least 6 characters.";
-
-        case "auth/invalid-credential":
-            return "Incorrect email or password.";
-
-        case "auth/user-not-found":
-            return "Account not found.";
-
-        case "auth/wrong-password":
-            return "Incorrect password.";
-
-        case "auth/too-many-requests":
-            return "Too many attempts. Try again later.";
-
-        default:
-            return "Authentication failed. Please try again.";
-
-    }
-}
-/* =====================================================
-   PRODUCTS
-   ===================================================== */
-
-const products = [
-
-    {
-        id: 1,
-        name: "Premium T-Shirt",
-        category: "shirts",
-        description: "Premium everyday cotton wear.",
         longDescription:
             "A comfortable premium T-shirt designed for everyday wear. Clean styling makes it easy to pair with different outfits.",
         price: 120,
@@ -2014,9 +117,9 @@ const products = [
 ];
 
 
-/* =====================================================
-   STATE
-   ===================================================== */
+// =====================================================
+// STATE
+// =====================================================
 
 let cart =
     JSON.parse(
@@ -2037,9 +140,9 @@ let selectedSize = null;
 let selectedQuantity = 1;
 
 
-/* =====================================================
-   ELEMENTS
-   ===================================================== */
+// =====================================================
+// ELEMENTS
+// =====================================================
 
 const productGrid =
     document.getElementById("productGrid");
@@ -2063,9 +166,9 @@ const toast =
     document.getElementById("toast");
 
 
-/* =====================================================
-   SAVE STATE
-   ===================================================== */
+// =====================================================
+// SAVE STATE
+// =====================================================
 
 function saveCart() {
 
@@ -2087,9 +190,9 @@ function saveFavourites() {
 }
 
 
-/* =====================================================
-   DISPLAY PRODUCTS
-   ===================================================== */
+// =====================================================
+// DISPLAY PRODUCTS
+// =====================================================
 
 function displayProducts() {
 
@@ -2169,15 +272,23 @@ function displayProducts() {
             "product-card";
 
 
+        const isFavourite =
+            favourites.includes(product.id);
+
+
         card.innerHTML = `
 
-            <div
-                class="product-image"
-                onclick="openProductDetails(${product.id})">
+            <div class="product-image">
 
                 <span class="product-tag">
                     ${product.tag}
                 </span>
+
+                <button
+                    class="favorite-btn ${isFavourite ? 'active' : ''}"
+                    onclick="event.stopPropagation(); toggleFavourite(${product.id}); event.currentTarget.classList.toggle('active');">
+                    ${isFavourite ? '♥' : '♡'}
+                </button>
 
                 ${product.icon}
 
@@ -2231,7 +342,8 @@ function displayProducts() {
             function(event) {
 
                 if (
-                    event.target.closest(".add-button")
+                    event.target.closest(".add-button") ||
+                    event.target.closest(".favorite-btn")
                 ) {
                     return;
                 }
@@ -2249,9 +361,9 @@ function displayProducts() {
 }
 
 
-/* =====================================================
-   SEARCH
-   ===================================================== */
+// =====================================================
+// SEARCH
+// =====================================================
 
 if (searchInput) {
 
@@ -2263,9 +375,9 @@ if (searchInput) {
 }
 
 
-/* =====================================================
-   CATEGORY
-   ===================================================== */
+// =====================================================
+// CATEGORY
+// =====================================================
 
 function filterCategory(
     category,
@@ -2301,9 +413,9 @@ function filterCategory(
 }
 
 
-/* =====================================================
-   PRODUCT DETAILS
-   ===================================================== */
+// =====================================================
+// PRODUCT DETAILS
+// =====================================================
 
 function openProductDetails(id) {
 
@@ -2412,7 +524,7 @@ function renderProductDetails() {
                             ? "active"
                             : ""
                     }"
-                    onclick="toggleFavourite(${product.id})">
+                    onclick="toggleFavourite(${product.id}); this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? '♥' : '♡';">
 
                     ${isFavourite ? "♥" : "♡"}
 
@@ -2577,9 +689,9 @@ function renderProductDetails() {
 }
 
 
-/* =====================================================
-   CLOSE PRODUCT DETAILS
-   ===================================================== */
+// =====================================================
+// CLOSE PRODUCT DETAILS
+// =====================================================
 
 function closeProductDetails() {
 
@@ -2609,9 +721,9 @@ function closeProductDetails() {
 }
 
 
-/* =====================================================
-   SIZE
-   ===================================================== */
+// =====================================================
+// SIZE
+// =====================================================
 
 function selectProductSize(size) {
 
@@ -2624,9 +736,9 @@ function selectProductSize(size) {
 }
 
 
-/* =====================================================
-   PRODUCT QUANTITY
-   ===================================================== */
+// =====================================================
+// PRODUCT QUANTITY
+// =====================================================
 
 function changeProductQuantity(change) {
 
@@ -2668,9 +780,9 @@ function changeProductQuantity(change) {
 }
 
 
-/* =====================================================
-   ADD SELECTED PRODUCT
-   ===================================================== */
+// =====================================================
+// ADD SELECTED PRODUCT
+// =====================================================
 
 function addSelectedProductToCart() {
 
@@ -2741,9 +853,9 @@ function addSelectedProductToCart() {
 }
 
 
-/* =====================================================
-   ADD DIRECTLY TO CART
-   ===================================================== */
+// =====================================================
+// ADD DIRECTLY TO CART
+// =====================================================
 
 function addToCart(id) {
 
@@ -2816,9 +928,9 @@ function addToCart(id) {
 }
 
 
-/* =====================================================
-   UPDATE CART
-   ===================================================== */
+// =====================================================
+// UPDATE CART
+// =====================================================
 
 function updateCart() {
 
@@ -3044,9 +1156,9 @@ function updateCart() {
 }
 
 
-/* =====================================================
-   CART QUANTITY
-   ===================================================== */
+// =====================================================
+// CART QUANTITY
+// =====================================================
 
 function changeCartQuantity(
     cartId,
@@ -3089,9 +1201,9 @@ function changeCartQuantity(
 }
 
 
-/* =====================================================
-   REMOVE CART
-   ===================================================== */
+// =====================================================
+// REMOVE CART
+// =====================================================
 
 function removeFromCart(
     cartId
@@ -3117,9 +1229,9 @@ function removeFromCart(
 }
 
 
-/* =====================================================
-   OPEN CART
-   ===================================================== */
+// =====================================================
+// OPEN CART
+// =====================================================
 
 function openCart() {
 
@@ -3135,9 +1247,9 @@ function openCart() {
 }
 
 
-/* =====================================================
-   CLOSE CART
-   ===================================================== */
+// =====================================================
+// CLOSE CART
+// =====================================================
 
 function closeCart(event) {
 
@@ -3158,9 +1270,9 @@ function closeCart(event) {
 }
 
 
-/* =====================================================
-   FAVOURITES
-   ===================================================== */
+// =====================================================
+// FAVOURITES
+// =====================================================
 
 function toggleFavourite(id) {
 
@@ -3205,9 +1317,9 @@ function toggleFavourite(id) {
 }
 
 
-/* =====================================================
-   ACCOUNT
-   ===================================================== */
+// =====================================================
+// ACCOUNT
+// =====================================================
 
 function openAccount() {
 
@@ -3242,9 +1354,9 @@ function closeAccount(event) {
 }
 
 
-/* =====================================================
-   SHOP
-   ===================================================== */
+// =====================================================
+// SHOP
+// =====================================================
 
 function scrollToProducts() {
 
@@ -3270,9 +1382,9 @@ function scrollToProducts() {
 }
 
 
-/* =====================================================
-   NAVIGATION
-   ===================================================== */
+// =====================================================
+// NAVIGATION
+// =====================================================
 
 function setBottomActive(id) {
 
@@ -3302,9 +1414,9 @@ function setBottomActive(id) {
 }
 
 
-/* =====================================================
-   CHECKOUT
-   ===================================================== */
+// =====================================================
+// CHECKOUT
+// =====================================================
 
 function checkout() {
 
@@ -3335,9 +1447,9 @@ function checkout() {
 }
 
 
-/* =====================================================
-   TOAST
-   ===================================================== */
+// =====================================================
+// TOAST
+// =====================================================
 
 let toastTimer;
 
@@ -3373,9 +1485,9 @@ function showToast(message) {
 }
 
 
-/* =====================================================
-   ESC KEY
-   ===================================================== */
+// =====================================================
+// ESC KEY
+// =====================================================
 
 document.addEventListener(
     "keydown",
@@ -3409,9 +1521,34 @@ document.addEventListener(
 );
 
 
-/* =====================================================
-   INITIALIZE
-   ===================================================== */
+// =====================================================
+// MAKE FUNCTIONS GLOBAL
+// =====================================================
+
+window.displayProducts = displayProducts;
+window.filterCategory = filterCategory;
+window.openProductDetails = openProductDetails;
+window.closeProductDetails = closeProductDetails;
+window.selectProductSize = selectProductSize;
+window.changeProductQuantity = changeProductQuantity;
+window.addSelectedProductToCart = addSelectedProductToCart;
+window.addToCart = addToCart;
+window.changeCartQuantity = changeCartQuantity;
+window.removeFromCart = removeFromCart;
+window.openCart = openCart;
+window.closeCart = closeCart;
+window.toggleFavourite = toggleFavourite;
+window.openAccount = openAccount;
+window.closeAccount = closeAccount;
+window.scrollToProducts = scrollToProducts;
+window.setBottomActive = setBottomActive;
+window.checkout = checkout;
+window.showToast = showToast;
+
+
+// =====================================================
+// INITIALIZE
+// =====================================================
 
 displayProducts();
 
