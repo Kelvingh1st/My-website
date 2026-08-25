@@ -3,22 +3,22 @@
 // FIREBASE CONFIGURATION
 // =====================================================
 
-import { initializeApp } from
-    "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
 import {
-    getAuth
-} from
-    "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    getAuth,
+    RecaptchaVerifier
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import {
     getDatabase
-} from
-    "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
 
 // =====================================================
-// FIREBASE PROJECT CONFIG
+// FIREBASE PROJECT
 // =====================================================
 
 const firebaseConfig = {
@@ -35,6 +35,52 @@ const firebaseConfig = {
     projectId:
         "my-website-bdbb6",
 
+    storageBucket:
+        "my-website-bdbb6.firebasestorage.app",
+
+    messagingSenderId:
+        "370953417016",
+
+    appId:
+        "1:370953417016:web:38237b03ae8d08196151cd"
+
+};
+
+
+// =====================================================
+// INITIALIZE FIREBASE
+// =====================================================
+
+const app =
+    initializeApp(firebaseConfig);
+
+
+// =====================================================
+// FIREBASE AUTH
+// =====================================================
+
+const auth =
+    getAuth(app);
+
+
+// =====================================================
+// REALTIME DATABASE
+// =====================================================
+
+const database =
+    getDatabase(app);
+
+
+// =====================================================
+// EXPORT
+// =====================================================
+
+export {
+    app,
+    auth,
+    database,
+    RecaptchaVerifier
+};
     storageBucket:
         "my-website-bdbb6.firebasestorage.app",
 
